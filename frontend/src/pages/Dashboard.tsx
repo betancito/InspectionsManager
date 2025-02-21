@@ -16,6 +16,8 @@ import axios from "axios";
 import EditInspectionModal, { Inspection } from "../components/dashboard/EditModal";
 import DetailsInspectionModal from "../components/dashboard/DetailsModal";
 import { useAuth } from "../context/AuthContext";
+import CreateInspectionModal from "../components/dashboard/CreateModal";
+import { Inspection as InspectionToSave } from "../components/dashboard/CreateModal";
 
 const Dashboard: React.FC = () => {
   const {isAdmin, logout} = useAuth();
@@ -27,7 +29,9 @@ const Dashboard: React.FC = () => {
   const [selectedInspection, setSelectedInspection] = useState<Inspection | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
 
+  //Initial fetcher for populating inspections
   const fetchInspections = async () => {
     setLoading(true);
     setError("");
@@ -63,7 +67,7 @@ const Dashboard: React.FC = () => {
     setDetailsModalOpen(true);
   };
 
-  // Example onSave handler for the edit modal
+  // onSave handler for inspection edit modal
   const handleSaveEdit = async (updatedInspection: Inspection) => {
     try {
       const token = localStorage.getItem("access");
@@ -85,12 +89,54 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  //onSave handler for inspection create modal
+  const handleCreate = async (newInspection: InspectionToSave) => {
+    try {
+      const token = localStorage.getItem("access");
+      if (!token) throw new Error("No access token found.");
+      // Create via your API (POST request)
+      const response = await axios.post("http://localhost:8000/api/v1/inspections/", newInspection, {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+      // Update the state locally or refetch data
+      setInspections(prev => [...prev, response.data]);
+      setCreateModalOpen(false);
+    } catch (error) {
+      console.error("Error creating inspection:", error);
+    }
+  };
+
+  //onDelete handler
+  const handleDelete = async (id: number) => {
+    try {
+      const token = localStorage.getItem("access");
+      if (!token) throw new Error("No access token found.");
+      await axios.delete(`http://localhost:8000/api/v1/inspections/${id}/`, {
+        headers: {
+          "Content-Type": "application",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+      setInspections(prev => prev.filter(i => i.id !== id));
+    } catch (error) {
+      console.error("Error deleting inspection:", error);
+    }
+  };
+
   return (
     <Container maxWidth="lg" className="mt-10">
-      <Typography variant="h4" gutterBottom>
-        Dashboard
-      </Typography>
-      <Button onClick={logout}>Salir de la cuenta</Button>
+      <div className="maxWidth flex display-flex justify-between" style={{ marginTop: "30px", alignItems: "center", marginBottom: "20px" }}>
+        <Typography variant="h4" gutterBottom>
+          Dashboard
+        </Typography>
+        <Button variant="contained" color="primary" onClick={()=>setCreateModalOpen(true)}>
+          Crear inspección
+        </Button>
+        <Button onClick={logout}>Salir de la cuenta</Button>
+      </div>
       {loading && <Typography>Loading...</Typography>}
       {error && <Typography color="error">{error}</Typography>}
       {!loading && !error && (
@@ -136,7 +182,7 @@ const Dashboard: React.FC = () => {
                       variant="contained"
                       color="error"
                       size="small"
-                      onClick={() => console.log("Delete", inspection.id)}
+                      onClick={() => handleDelete(inspection.id)}
                     >
                       Eliminar
                     </Button>
@@ -162,6 +208,13 @@ const Dashboard: React.FC = () => {
         open={detailsModalOpen}
         inspection={selectedInspection}
         onClose={() => setDetailsModalOpen(false)}
+      />
+
+      {/* Create modal */}
+      <CreateInspectionModal
+        open={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        onSave={handleCreate}
       />
     </Container>
   );
