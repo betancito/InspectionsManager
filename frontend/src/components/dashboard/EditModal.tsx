@@ -9,6 +9,7 @@ import {
   Button,
 } from "@mui/material";
 
+// Inspection Model for updating pourposes
 export interface Inspection {
   id: number;
   title: string;
@@ -18,9 +19,9 @@ export interface Inspection {
   due_date: string;
   created_at: string;
   updated_at: string;
-  updated_by: string;
 }
 
+// Props for the EditModal
 interface props {
   open: boolean;
   inspection: Inspection | null;
@@ -34,6 +35,8 @@ const EditInspectionModal: React.FC<props> = ({
   onClose,
   onSave,
 }) => {
+
+  // States for the fields to be updated
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [latitude, setLatitude] = useState("");
@@ -51,6 +54,7 @@ const EditInspectionModal: React.FC<props> = ({
     }
   }, [inspection]);
 
+  // Save handler to set new details
   const handleSave = () => {
     if (inspection) {
       const updatedInspection: Inspection = {

@@ -20,12 +20,16 @@ import CreateInspectionModal from "../components/dashboard/CreateModal";
 import { Inspection as InspectionToSave } from "../components/dashboard/CreateModal";
 
 const Dashboard: React.FC = () => {
+  //API path 
+  const API_URL = import.meta.env.VITE_API_URL;
+
+  // Variables for the dashboard
   const {isAdmin, logout} = useAuth();
-  const [inspections, setInspections] = useState<Inspection[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   
   // States for modals:
+  const [inspections, setInspections] = useState<Inspection[]>([]);
   const [selectedInspection, setSelectedInspection] = useState<Inspection | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
@@ -38,7 +42,7 @@ const Dashboard: React.FC = () => {
     try {
       const token = localStorage.getItem("access");
       if (!token) throw new Error("No access token found.");
-      const response = await axios.get("http://localhost:8000/api/v1/inspections/", {
+      const response = await axios.get(`${API_URL}/inspections/` , {
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
@@ -53,28 +57,30 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  // Fetch inspections on component mount
   useEffect(() => {
     fetchInspections();
   }, []);
 
+  // Edit handler to send info to the modal
   const handleEditClick = (inspection: Inspection) => {
     setSelectedInspection(inspection);
     setEditModalOpen(true);
   };
 
+  // Details handler
   const handleDetailsClick = (inspection: Inspection) => {
     setSelectedInspection(inspection);
     setDetailsModalOpen(true);
   };
 
-  // onSave handler for inspection edit modal
+  // Save handler for inspection edit modal
   const handleSaveEdit = async (updatedInspection: Inspection) => {
     try {
       const token = localStorage.getItem("access");
       if (!token) throw new Error("No access token found.");
       
-      // Update via your API (PUT/PATCH request)
-      await axios.put(`http://localhost:8000/api/v1/inspections/${updatedInspection.id}/`, updatedInspection, {
+      await axios.put(`${API_URL}/inspections/${updatedInspection.id}/`, updatedInspection, {
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
@@ -85,7 +91,6 @@ const Dashboard: React.FC = () => {
       setEditModalOpen(false);
     } catch (error) {
       console.error("Error updating inspection:", error);
-      // Optionally, display an error message
     }
   };
 
@@ -94,8 +99,7 @@ const Dashboard: React.FC = () => {
     try {
       const token = localStorage.getItem("access");
       if (!token) throw new Error("No access token found.");
-      // Create via your API (POST request)
-      const response = await axios.post("http://localhost:8000/api/v1/inspections/", newInspection, {
+      const response = await axios.post(`${API_URL}/inspections/`, newInspection, {
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
@@ -109,12 +113,12 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  //onDelete handler
+  //Delete handler
   const handleDelete = async (id: number) => {
     try {
       const token = localStorage.getItem("access");
       if (!token) throw new Error("No access token found.");
-      await axios.delete(`http://localhost:8000/api/v1/inspections/${id}/`, {
+      await axios.delete(`${API_URL}/inspections/${id}/`, {
         headers: {
           "Content-Type": "application",
           "Authorization": `Bearer ${token}`,
@@ -132,9 +136,11 @@ const Dashboard: React.FC = () => {
         <Typography variant="h4" gutterBottom>
           Dashboard
         </Typography>
+        { isAdmin &&
         <Button variant="contained" color="primary" onClick={()=>setCreateModalOpen(true)}>
           Crear inspección
         </Button>
+    }   
         <Button onClick={logout}>Salir de la cuenta</Button>
       </div>
       {loading && <Typography>Loading...</Typography>}

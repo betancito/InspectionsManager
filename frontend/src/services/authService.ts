@@ -37,7 +37,7 @@ export const login = async (username: string, password: string) => {
     const decodedToken : DecodedToken = jwtDecode(access);
     console.log("decoded token", decodedToken);
 
-    //extract if admin
+    //extract if logged user is admin
     const {is_admin, email} = decodedToken;
 
     //Store the token in the local storage

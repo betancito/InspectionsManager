@@ -13,7 +13,7 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { useAuth } from "../../context/AuthContext";
 
 
-
+//Props for the DetailsModal
 interface props {
   open: boolean;
   inspection: Inspection | null;
