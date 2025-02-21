@@ -61,7 +61,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-#REMEMBER TO COMMENT THIS ONCE IN PRODUCTION THIS IS TO ALLOW REQUESTS FROM THE SAME NETWORK
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173", # React
 ]

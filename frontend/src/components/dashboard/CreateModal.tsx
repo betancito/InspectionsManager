@@ -1,4 +1,3 @@
-// src/components/inspections/EditInspectionModal.tsx
 import React, { useState } from "react";
 import {
   Dialog,
@@ -9,6 +8,7 @@ import {
   Button,
 } from "@mui/material";
 
+//Inspection Model for saving new inspections
 export interface Inspection {
   title: string;
   description: string;
@@ -17,6 +17,7 @@ export interface Inspection {
   due_date: string;
 }
 
+//Props for the CreateModal
 interface props {
   open: boolean;
   onClose: () => void;
@@ -34,6 +35,7 @@ const CreateInspectionModal: React.FC<props> = ({
   const [longitude, setLongitude] = useState("");
   const [dueDate, setDueDate] = useState(""); 
 
+  //Function to handle the save button
   const handleSave = () => {
     const inspectionTosave : Inspection = {
       title,

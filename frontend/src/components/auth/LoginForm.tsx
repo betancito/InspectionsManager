@@ -9,7 +9,7 @@ const LoginForm: React.FC<props> = ({onSubmit, error}) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
-
+    //Function to handle the form submission
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         try{
@@ -25,6 +25,7 @@ const LoginForm: React.FC<props> = ({onSubmit, error}) => {
                 <Typography variant="h5" gutterBottom>
                     Ingresar
                 </Typography>
+                {/* Error message advice to user */}
                 {error && <Alert severity="error">{error}</Alert>}
                 <br />
                 <form onSubmit={handleSubmit}>
