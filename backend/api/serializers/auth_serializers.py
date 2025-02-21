@@ -6,5 +6,6 @@ class CustomAuthSerializer(TokenObtainPairSerializer):
         token = super().get_token(user)
         #Custom field for user class
         token['is_admin'] = user.is_superuser
+        token['email'] = user.email
         
         return token
