@@ -14,9 +14,11 @@ venv/
 *.env
 
 # Ignore Django migrations cache
-**/migrations/__pycache__/
-**/migrations/*.pyc
-**/migrations/*.pyo
+**/migrations/*.py
+!**/migrations/__init__.py
 
 # Ignore VS Code files in case they exist
 .vscode/
+
+
+
