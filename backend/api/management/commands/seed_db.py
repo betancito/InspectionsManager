@@ -31,7 +31,7 @@ class Command(BaseCommand):
         #for inspections
         for i in range (5):
             #Variables for creation faking
-            title= fake.sentence(nb_words=2),
+            title= fake.name(),
             description = fake.paragraph(nb_sentences=3)
             due_date = fake.date_between(start_date="today", end_date="+30d")
             latitude = round(random.uniform(-90, 90), 6)
