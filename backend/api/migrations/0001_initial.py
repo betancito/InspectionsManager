@@ -16,12 +16,17 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('title', models.TextField(max_length=255)),
-                ('description', models.CharField(max_length=500)),
+                ('description', models.CharField(max_length=512)),
                 ('due_date', models.DateField()),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
                 ('latitude', models.FloatField()),
                 ('longitude', models.FloatField()),
+                ('completed', models.BooleanField()),
+                ('completed_description', models.CharField(max_length=512, null=True)),
+                ('completed_lat', models.FloatField(null=True)),
+                ('completed_log', models.FloatField(null=True)),
+                ('completed_file', models.CharField(max_length=255, null=True))
             ],
         ),
     ]

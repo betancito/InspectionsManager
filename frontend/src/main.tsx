@@ -8,12 +8,16 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import 'leaflet/dist/leaflet.css';
+import { store } from "./features/store";
+import { Provider } from 'react-redux';
 
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <AuthProvider>
-      <AppRouter />
+      <Provider store={store}>
+        <AppRouter />
+      </Provider>
     </AuthProvider>
   </React.StrictMode>
 );

@@ -36,6 +36,7 @@ class Command(BaseCommand):
             due_date = fake.date_between(start_date="today", end_date="+30d")
             latitude = round(random.uniform(-2, 12), 6)
             longitude = round(random.uniform(-76, -68), 6)
+            completed = False
             
             #Creation of inspection using faked variables 
             inspection = Inspection.objects.create(
@@ -43,7 +44,8 @@ class Command(BaseCommand):
                 description = description,
                 due_date = due_date,
                 latitude = latitude,
-                longitude = longitude
+                longitude = longitude,
+                completed = completed
             )
             
             #Message to advice creation

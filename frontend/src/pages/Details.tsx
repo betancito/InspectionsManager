@@ -1,40 +1,32 @@
-// src/components/inspections/DetailsInspectionModal.tsx
 import React from "react";
 import {
-  Dialog,
+  Container,
   DialogTitle,
   DialogContent,
-  DialogActions,
-  Button,
   Typography,
 } from "@mui/material";
-import { Inspection } from "./EditModal";
+import { Inspection } from "../components/dashboard/EditModal";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
+import { useLocation, useParams } from "react-router-dom";
 
 
-//Props for the DetailsModal
-interface props {
-  open: boolean;
-  inspection: Inspection | null;
-  onClose: () => void;
-}
 
-const DetailsInspectionModal: React.FC<props> = ({
-  open,
-  inspection,
-  onClose,
-}) => {
+const Details: React.FC = () => {
   const {isAdmin} = useAuth();
+  const location = useLocation();
+  const { id } = useParams();
+
+  const inspection: Inspection | null = location.state?.inspection || null;
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Container maxWidth="sm">
       <DialogTitle>Detalles de la inspección</DialogTitle>
       <DialogContent dividers>
         {inspection ? (
           <>
             <Typography variant="subtitle1">ID: {inspection.id}</Typography>
-            <Typography variant="subtitle1">Titulo: {inspection.title}</Typography>
+            <Typography variant="subtitle1">Encargado: {inspection.title.slice(2, -3)}</Typography>
             <Typography variant="subtitle1">Descripción: {inspection.description}</Typography>
             <Typography variant="subtitle1">
               Latitud: {inspection.latitude}
@@ -74,13 +66,8 @@ const DetailsInspectionModal: React.FC<props> = ({
           <Typography>No ha seleccionado una inspección</Typography>
         )}
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose} variant="contained" color="primary">
-          Cerrar
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-};
+    </Container>
+  )
+}
 
-export default DetailsInspectionModal;
+export default Details

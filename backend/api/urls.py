@@ -4,11 +4,13 @@ from api.controllers.inspection_controller import InspectionViewSet
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from . import views
 
-router = DefaultRouter()
-router.register(r'inspections', InspectionViewSet, basename='inspection')
+
 
 urlpatterns = [
-    path('', include(router.urls)),
+    #Inspections Paths
+    path('inspections/', views.InspectionView.as_view(), name='inspections-all'),
+    path('inspections/<int:id>/', views.InspectionView.as_view(), name='inspections-one'),
+    path('inspections/complete/<int:id>', views.CompleteInspectionView.as_view, name='completeInspection'),
     
     #JWTauth endpoints
     path("token/", views.CustomAuthView.as_view(), name='token_obtain_pair'),

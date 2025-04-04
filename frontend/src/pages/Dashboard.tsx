@@ -14,10 +14,14 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import EditInspectionModal, { Inspection } from "../components/dashboard/EditModal";
-import DetailsInspectionModal from "../components/dashboard/DetailsModal";
 import { useAuth } from "../context/AuthContext";
 import CreateInspectionModal from "../components/dashboard/CreateModal";
 import { Inspection as InspectionToSave } from "../components/dashboard/CreateModal";
+import { Link } from "react-router-dom";
+import CheckModal from "../components/dashboard/CheckModal";
+import { useDispatch } from "react-redux";
+import { openCheckModal } from "../features/slicers/checkSlice";
+
 
 const Dashboard: React.FC = () => {
   //API path 
@@ -32,7 +36,6 @@ const Dashboard: React.FC = () => {
   const [inspections, setInspections] = useState<Inspection[]>([]);
   const [selectedInspection, setSelectedInspection] = useState<Inspection | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
 
   //Initial fetcher for populating inspections
@@ -68,11 +71,8 @@ const Dashboard: React.FC = () => {
     setEditModalOpen(true);
   };
 
-  // Details handler
-  const handleDetailsClick = (inspection: Inspection) => {
-    setSelectedInspection(inspection);
-    setDetailsModalOpen(true);
-  };
+  //Check modal handler
+  const dispatch = useDispatch();
 
   // Save handler for inspection edit modal
   const handleSaveEdit = async (updatedInspection: Inspection) => {
@@ -151,16 +151,17 @@ const Dashboard: React.FC = () => {
             <TableHead>
               <TableRow>
                 <TableCell>ID</TableCell>
-                <TableCell>Título</TableCell>
+                <TableCell>Inspector</TableCell>
                 <TableCell>Fecha de inspección</TableCell>
                 <TableCell>Acciones</TableCell>
+                <TableCell>Completada</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {inspections.map((inspection) => (
                 <TableRow key={inspection.id}>
                   <TableCell>{inspection.id}</TableCell>
-                  <TableCell>{inspection.title}</TableCell>
+                  <TableCell>{inspection.title.slice(2, -3)}</TableCell>
                   <TableCell>{inspection.due_date}</TableCell>
                   <TableCell>
                     { isAdmin &&
@@ -174,15 +175,16 @@ const Dashboard: React.FC = () => {
                       Editar
                     </Button>
                     }
+                    <Link to={`/inspection/${inspection.id}`} state={{inspection}}>
                     <Button
                       variant="outlined"
                       color="secondary"
                       size="small"
-                      onClick={() => handleDetailsClick(inspection)}
                       style={{ marginRight: "0.5rem" }}
                     >
                       Detalles
                     </Button>
+                    </Link>
                     { isAdmin &&
                     <Button
                       variant="contained"
@@ -194,13 +196,21 @@ const Dashboard: React.FC = () => {
                     </Button>
                     }
                   </TableCell>
+                  <TableCell>
+                    <Button 
+                      variant="outlined" 
+                      color="warning" 
+                      onClick={()=>dispatch(openCheckModal(1))}
+                    >
+                      Completar Inspección
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
       )}
-
       {/* Edit Modal */}
       <EditInspectionModal
         open={editModalOpen}
@@ -208,20 +218,14 @@ const Dashboard: React.FC = () => {
         onClose={() => setEditModalOpen(false)}
         onSave={handleSaveEdit}
       />
-
-      {/* Details Modal */}
-      <DetailsInspectionModal
-        open={detailsModalOpen}
-        inspection={selectedInspection}
-        onClose={() => setDetailsModalOpen(false)}
-      />
-
       {/* Create modal */}
       <CreateInspectionModal
         open={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
         onSave={handleCreate}
       />
+      {/* Check Modal */}
+      <CheckModal/>
     </Container>
   );
 };
