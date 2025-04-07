@@ -11,7 +11,7 @@ const CheckModal: React.FC = () => {
 
     //handlers 
     const dispatch = useDispatch();
-    const {open, latitude, longitude, description, photo, completeStatus, error} = useSelector(
+    const {open, latitude, longitude, description, photoName, uploadStatus, error} = useSelector(
         (state: RootState) => state.checkModal
     )
     const handleClose = () => dispatch(closeCheckModal());
@@ -22,15 +22,15 @@ const CheckModal: React.FC = () => {
     }
 
     const handleSave = () => {
-        if (!photo){
+        if (!photoName){
             alert("Por favor suba las imagenes pertenencientes a la inspección")
-            return
+            return;
         }
         dispatch(completeInspection());
     };
 
     //constants
-    const MAX_LENGHT = 512;
+    const MAX_LENGHT = 50;
 
     //custom styles
     const VisuallyHiddenInput = styled('input')({
@@ -52,7 +52,7 @@ const CheckModal: React.FC = () => {
             <TextField 
                 label="Latitud dónde la imagen de la inspección fue tomada"
                 type='number'
-                value={latitude}
+                value={latitude || ''}
                 fullWidth
                 margin='normal'
                 onChange={(e) => dispatch(setLatitude(Number(e.target.value)))}
@@ -60,7 +60,7 @@ const CheckModal: React.FC = () => {
             <TextField 
                 label="Longitud dónde la imagen de la inspección fue tomada"
                 type='number'
-                value={longitude}
+                value={longitude || ''}
                 fullWidth
                 margin='normal'
                 onChange={(e) => dispatch(setLongitude(Number(e.target.value)))}
@@ -83,19 +83,21 @@ const CheckModal: React.FC = () => {
                 tabIndex={-1}
                 startIcon={<CloudUploadIcon />}
                 >
-                Subir Imagenes de la inspección
+                    Subir Imagenes de la inspección
                 <VisuallyHiddenInput
                     type="file"
                     onChange={handleFileChange}
-                    multiple
+                    accept="image/*"
                 />
                 </Button>
-                {photo&&<p>{photo.name}</p>}
+                {photoName&&<p>{photoName}</p>}
             </div>
-            {completeStatus === "loading" && <CircularProgress/>}
-            {error && <p className='color-red'>{error}</p>}
-            <Button onClick={handleClose} color='secondary'>Cancelar</Button>
-            <Button onClick={handleSave} color="success" disabled={completeStatus === "loading"}>Guardar</Button>
+            {uploadStatus === "loading" && <CircularProgress/>}
+            {error && <p  style={{ 'color':'red' }}>{error}</p>}
+            <div style={{'marginTop':'20px'}}>
+                <Button onClick={handleClose} color='secondary' style={{'marginRight':'10px'}}>Cancelar</Button>
+                <Button onClick={handleSave} color="success" disabled={uploadStatus === "loading"}>Guardar</Button>
+            </div>
         </DialogContent>
     </Dialog>
   )

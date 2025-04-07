@@ -45,16 +45,21 @@ const Dashboard: React.FC = () => {
     try {
       const token = localStorage.getItem("access");
       if (!token) throw new Error("No access token found.");
-      const response = await axios.get(`${API_URL}/inspections/` , {
+      const response = await axios.get(`${API_URL}/inspections/`, {
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
         },
       });
-      setInspections(response.data);
+
+      //Ensure Inspections array
+      const inspectionsData =  Array.isArray(response.data) ? response.data : [];
+      setInspections(inspectionsData);
     } catch (err) {
       console.error("Error fetching inspections:", err);
       setError("Failed to fetch inspections");
+      //Set inspections to none when error happens
+      setInspections([]);
     } finally {
       setLoading(false);
     }
@@ -158,7 +163,7 @@ const Dashboard: React.FC = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {inspections.map((inspection) => (
+              {Array.isArray(inspections) && inspections.map((inspection) => (
                 <TableRow key={inspection.id}>
                   <TableCell>{inspection.id}</TableCell>
                   <TableCell>{inspection.title.slice(2, -3)}</TableCell>
@@ -200,7 +205,7 @@ const Dashboard: React.FC = () => {
                     <Button 
                       variant="outlined" 
                       color="warning" 
-                      onClick={()=>dispatch(openCheckModal(1))}
+                      onClick={()=>dispatch(openCheckModal(inspection.id))}
                     >
                       Completar Inspección
                     </Button>

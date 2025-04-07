@@ -1,4 +1,4 @@
-#Rest Framework tools
+#Rest Framework tools and Pillow
 from django.shortcuts import get_object_or_404, render
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.views import APIView
@@ -12,6 +12,13 @@ from .serializers.auth_serializers import CustomAuthSerializer
 from .serializers.inspection_serializer import InspectionSerializer
 #Models
 from .models.inspection import Inspection
+#Utils and tools
+from PIL import Image
+from .utils.photo_edit import edit_img
+import io
+from django.core.files.uploadedfile import InMemoryUploadedFile
+
+
 
 #View to render api index showing endpoints and basic usage
 def index(request):
@@ -45,6 +52,7 @@ class InspectionView(APIView):
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data)
+            print(request.data)
         except Exception as e:
             print(f"Error: {e}")
             return Response({'Error': str(e)})
@@ -61,31 +69,77 @@ class InspectionView(APIView):
         except Exception as e:
             print(f"Error: {e}")
             return Response({'Error': str(e)})
-        
-#Complete inspection methods
 
-class CompleteInspectionView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
-    
-    @csrf_exempt
-    def put(self, request, id):
+    #Post
+    def post(self, request):
         try:
-            inspection = Inspection.objects.get(pk=id)
-            data = request.data.copy()
-            
-            if 'latitude' and 'longitude' and 'description' and 'photo' in data:
-                data['completed_lat', ] = data.pop['latitude']
-                data['completed_log']  = data.pop['longitude']
-                data['completed_description']  = data.pop['description']
-                data['completed_file']  = data.pop['photo']
-                data['completed'] = True
-                serializer = InspectionSerializer(inspection, data=data)
+            serializer = InspectionSerializer(data=request.data)
+            if serializer.is_valid():
                 serializer.save()
-            elif  'completed_lat' and 'completed_log' and 'completed_description' and 'completed_file' in data:
-                data['completed'] = True
-                serializer = InspectionSerializer(inspection, data=data)
-                serializer.save()
+                return Response(serializer.data, status=201)
+            return Response(serializer.errors, status=400)
         except Exception as e:
             print(f"Error: {e}")
-            return Response({'Error': str(e)})
+            return Response ({"Error": str(e)})
+
+#Complete inspection methods
+class CompleteInspectionView(APIView):
+    def put(self, request, id):
+        
+        try:
+            inspection = Inspection.objects.get(pk=id)
+            #Get values from data
+            latitude = request.data.get('latitude')
+            longitude = request.data.get('longitude')
+            description = request.data.get('description')
+            photo = request.FILES.get('photo')
+            
+            if not all([latitude, longitude, description, photo]):
+                return Response({'Error' : 'Missing required fields'}, status=400)
+            
+            #Set inspection fields to update
+            inspection.completed_lat = float(latitude)
+            inspection.completed_log = float(longitude)
+            inspection.completed_description = description
+            inspection.completed_file = photo
+            inspection.completed = True
+            
+            import pdb; pdb.set_trace()
+            
+            #Block for Image edition (Map and description addition)
+            img = Image.open(photo)
+            lat = float(latitude)
+            log = float(longitude)
+            edited_img = edit_img(img, description=description, latitude=lat, longitude=longitude)
+            
+            #Prepare BytesIO buffer to save the edited image
+            img_io = io.BytesIO()
+            
+            #Save edited image to buffer
+            edited_img.save(img_io, format=img.format)
+            img_io.seek(0)
+            
+            #Create temporary memory image to save
+            edited_img_file = InMemoryUploadedFile(
+                img_io,
+                field_name="edited_file",
+                name=f"edited_{photo.name}",
+                size=img_io.getbuffer().nbytes,
+                charset=None
+            )
+            #Save based on object 
+            inspection.completed_editedFile = edited_img_file
+            inspection.save()
+            
+            #Return Updated
+            serializer = InspectionSerializer(inspection)
+            return Response(serializer.data)
+        
+        except Inspection.DoesNotExist:
+            return Response({'Error': f"Inspection with id {id} not found in records"}, status=404)
+        
+        except ValueError as e:
+            return Response({"Error": str(e)}, status=400)
+        
+        except Exception as e:
+            return Response({'Error': str(e)}, status=500)

@@ -26,7 +26,8 @@ class Migration(migrations.Migration):
                 ('completed_description', models.CharField(max_length=512, null=True)),
                 ('completed_lat', models.FloatField(null=True)),
                 ('completed_log', models.FloatField(null=True)),
-                ('completed_file', models.CharField(max_length=255, null=True))
+                ('completed_file', models.CharField(max_length=255, null=True)),
+                ('completed_editedFile', models.CharField(max_length=255, null=True)),
             ],
         ),
     ]
