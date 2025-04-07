@@ -1,6 +1,10 @@
 from django.db import models
 
+
 #Method to update files to media
+def upload_to(instance, filename):
+    return f"inspection_photo/{filename}"
+
 def upload_to_original(instance, filename):
     id = instance.pk
     return f"inspection_photo/{id}/original/{filename}"
@@ -8,7 +12,6 @@ def upload_to_original(instance, filename):
 def upload_to_edited(instance, filename):
     id = instance.pk 
     return f"inspection_photo/{id}/edited/{filename}"
-
 
 
 #InspectionModel
