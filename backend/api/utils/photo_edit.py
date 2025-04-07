@@ -19,7 +19,7 @@ def edit_img(
     draw = ImageDraw.Draw(img)
     img_width, img_height = img.size
     
-    max_text_width = img(img_width*max_width_ratio)
+    max_text_width = int(img_width*max_width_ratio)
     
     #Format font size depending on img width
     font_size = int(round(img_width/36))
