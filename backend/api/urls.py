@@ -1,16 +1,13 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from api.controllers.inspection_controller import InspectionViewSet
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from django.urls import path
+from rest_framework_simplejwt.views import TokenRefreshView
+
 from . import views
-
-
 
 urlpatterns = [
     #Inspections Paths
     path('inspections/', views.InspectionView.as_view(), name='inspections-all'),
     path('inspections/<int:id>/', views.InspectionView.as_view(), name='inspections-one'),
-    path('inspections/complete/<int:id>', views.CompleteInspectionView.as_view, name='completeInspection'),
+    path('inspections/complete/<int:id>/', views.CompleteInspectionView.as_view(), name='completeInspection'),
     
     #JWTauth endpoints
     path("token/", views.CustomAuthView.as_view(), name='token_obtain_pair'),

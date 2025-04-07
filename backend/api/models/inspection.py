@@ -1,5 +1,6 @@
 from django.db import models
 
+
 #Method to update files to media
 def upload_to(instance, filename):
     return f"inspection_photo/{filename}"
@@ -14,7 +15,8 @@ class Inspection(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     latitude = models.FloatField(null=False, blank=False)
     longitude = models.FloatField(null=False, blank=False)
-    completed = models.BooleanField(null = False, blank=False)
+    completed = models.BooleanField(null=False, blank=False, default=False)
+    # completed = models.BooleanField(null = False, blank=False)
     completed_description = models.CharField(max_length=512, null=True, blank=True)
     completed_lat = models.FloatField(null=True, blank=True)
     completed_log = models.FloatField(null=True, blank=True)
