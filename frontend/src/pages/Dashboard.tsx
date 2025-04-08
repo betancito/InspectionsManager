@@ -12,8 +12,9 @@ import {
   Paper,
   Button,
 } from "@mui/material";
+import CheckIcon from '@mui/icons-material/Check';
 import axios from "axios";
-import EditInspectionModal, { Inspection } from "../components/dashboard/EditModal";
+import EditInspectionModal from "../components/dashboard/EditModal";
 import CreateInspectionModal from "../components/dashboard/CreateModal";
 import { Inspection as InspectionToSave } from "../components/dashboard/CreateModal";
 import { Link } from "react-router-dom";
@@ -24,6 +25,7 @@ import { logout } from "../features/slicers/authSlice";
 import { API_URL } from "../utils/constants";
 import { RootState } from "../features/store";
 import { useSelector } from "react-redux";
+import { InspectionModel as Inspection } from "../utils/constants";
 
 
 const Dashboard: React.FC = () => {
@@ -207,7 +209,12 @@ const Dashboard: React.FC = () => {
                     </Button>
                     }
                   </TableCell>
-                  <TableCell>
+                  {inspection.completed ? (
+                    <TableCell sx={{justifyContent: "center" }}>
+                      <CheckIcon color="success" />
+                    </TableCell>
+                  ) : (
+                    <TableCell>
                     <Button 
                       variant="outlined" 
                       color="warning" 
@@ -216,6 +223,7 @@ const Dashboard: React.FC = () => {
                       Completar Inspección
                     </Button>
                   </TableCell>
+                )}
                 </TableRow>
               ))}
             </TableBody>
