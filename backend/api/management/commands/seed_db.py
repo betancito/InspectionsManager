@@ -1,4 +1,5 @@
 import random
+import string
 from faker import Faker
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
@@ -30,8 +31,12 @@ class Command(BaseCommand):
             
         #for inspections
         for i in range (5):
-            #Variables for creation faking
-            title= fake.name(),
+            #Variables for faking creation
+            name= fake.name(),
+            title = str(name).replace("(", "")
+            title = str(title).replace(")", "")
+            title = str(title).replace("'", "")
+            title = str(title).replace(",", "")
             description = fake.paragraph(nb_sentences=3)
             due_date = fake.date_between(start_date="today", end_date="+30d")
             latitude = round(random.uniform(-2, 12), 6)

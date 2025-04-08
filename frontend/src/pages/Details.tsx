@@ -7,13 +7,14 @@ import {
 } from "@mui/material";
 import { Inspection } from "../components/dashboard/EditModal";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import { useAuth } from "../context/AuthContext";
+import { RootState } from "../features/store";
 import { useLocation, useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 
 
 const Details: React.FC = () => {
-  const {isAdmin} = useAuth();
+  const {isAdmin} = useSelector((state: RootState) => state.auth);
   const location = useLocation();
   const { id } = useParams();
 

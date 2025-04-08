@@ -1,13 +1,15 @@
 import React, { JSX } from "react";
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { useSelector } from "react-redux";
+import { RootState } from "../../features/store";
 
 interface props {
   children: JSX.Element;
 }
 
 const PrivateRoute: React.FC<props> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+  //Check for authenticated status
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   //Check if authencicated, otherwise will take user to login view
   if (!isAuthenticated) {

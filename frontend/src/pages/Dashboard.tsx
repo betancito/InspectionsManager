@@ -14,29 +14,38 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import EditInspectionModal, { Inspection } from "../components/dashboard/EditModal";
-import { useAuth } from "../context/AuthContext";
 import CreateInspectionModal from "../components/dashboard/CreateModal";
 import { Inspection as InspectionToSave } from "../components/dashboard/CreateModal";
 import { Link } from "react-router-dom";
 import CheckModal from "../components/dashboard/CheckModal";
 import { useDispatch } from "react-redux";
 import { openCheckModal } from "../features/slicers/checkSlice";
+import { logout } from "../features/slicers/authSlice";
+import { API_URL } from "../utils/constants";
+import { RootState } from "../features/store";
+import { useSelector } from "react-redux";
 
 
 const Dashboard: React.FC = () => {
-  //API path 
-  const API_URL = import.meta.env.VITE_API_URL;
 
   // Variables for the dashboard
-  const {isAdmin, logout} = useAuth();
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   
+  // Auth check
+  const {isAdmin} = useSelector((state: RootState) => state.auth);
+
   // States for modals:
   const [inspections, setInspections] = useState<Inspection[]>([]);
   const [selectedInspection, setSelectedInspection] = useState<Inspection | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
+
+  //handleLogout function
+  const dispatch = useDispatch();
+  const handleLogout = () => {
+    dispatch(logout());
+  }
 
   //Initial fetcher for populating inspections
   const fetchInspections = async () => {
@@ -75,9 +84,6 @@ const Dashboard: React.FC = () => {
     setSelectedInspection(inspection);
     setEditModalOpen(true);
   };
-
-  //Check modal handler
-  const dispatch = useDispatch();
 
   // Save handler for inspection edit modal
   const handleSaveEdit = async (updatedInspection: Inspection) => {
@@ -146,7 +152,7 @@ const Dashboard: React.FC = () => {
           Crear inspección
         </Button>
     }   
-        <Button onClick={logout}>Salir de la cuenta</Button>
+        <Button onClick={handleLogout}>Salir de la cuenta</Button>
       </div>
       {loading && <Typography>Loading...</Typography>}
       {error && <Typography color="error">{error}</Typography>}
@@ -166,7 +172,7 @@ const Dashboard: React.FC = () => {
               {Array.isArray(inspections) && inspections.map((inspection) => (
                 <TableRow key={inspection.id}>
                   <TableCell>{inspection.id}</TableCell>
-                  <TableCell>{inspection.title.slice(2, -3)}</TableCell>
+                  <TableCell>{inspection.title.includes("(") ? inspection.title.slice(2, -3) : inspection.title}</TableCell>
                   <TableCell>{inspection.due_date}</TableCell>
                   <TableCell>
                     { isAdmin &&

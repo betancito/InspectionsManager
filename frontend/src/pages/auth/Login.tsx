@@ -1,29 +1,36 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import LoginForm from "../../components/auth/LoginForm";
-import { useAuth } from "../../context/AuthContext";
+import { useSelector, useDispatch } from "react-redux";
+import { login } from "../../features/slicers/authSlice";
 import { useNavigate } from "react-router-dom";
+import { RootState, AppDispatch } from "../../features/store";
+
 
 
 const Login: React.FC = () => {
+  //reducer functions
+  const dispatch = useDispatch<AppDispatch>();
+  const {isAuthenticated, error} = useSelector((state: RootState) => state.auth);
+
   const navigate = useNavigate();
-  const { loginUser } = useAuth();
-  const [error, setError] = useState<string>('');
+  const [authError, setError] = useState<string>("");
 
   //Function to handle login form submission
   const handleSubmit = async (username: string, password: string) => {
     try {
-      await loginUser(username, password);
+      // Dispatch the login action
+      await dispatch(login({ username, password })).unwrap();
+
+      // Redirect to dasboard page after successful login
       navigate("/dashboard");
-      setError(''); //Redirect to dashboard after authenticated
-    } catch (error) {
-      console.error("Login failed", error);
-      setError('Algo ha salido mal, por favor revise sus credenciales e intente de nuevo.');
+    } catch {
+      setError("Invalid username or password");
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-200">
-      <LoginForm onSubmit={handleSubmit} error={error}/>
+      <LoginForm onSubmit={handleSubmit} error={authError || error || ""}/>
     </div>
   );
 };
