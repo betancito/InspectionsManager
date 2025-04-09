@@ -1,6 +1,7 @@
 import axios from "axios";
 import {store} from "../features/store";
 import { refreshToken } from "../features/slicers/authSlice";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const setupAxiosInterceptors = () => {
     axios.interceptors.request.use(
@@ -36,7 +37,24 @@ const setupAxiosInterceptors = () => {
             }
             return Promise.reject(error);
         }
-    )
+    );
+
+    // Add Auth0 token to request headers
+    const { getAccessTokenSilently } = useAuth0();
+    axios.interceptors.request.use(
+        async (config) => {
+        try {
+            const token = await getAccessTokenSilently();
+            if (token) {
+            config.headers["Authorization"] = `Bearer ${token}`;
+            }
+        } catch (error) {
+            console.error("Error fetching token:", error);
+        }
+        return config;
+        },
+        (error) => Promise.reject(error)
+    );
 }
 
 export default setupAxiosInterceptors;

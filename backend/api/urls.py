@@ -6,6 +6,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.views.decorators.csrf import csrf_exempt
 from django.conf.urls.static import static
 from django.conf import settings
+
 from . import views
 
 
@@ -26,5 +27,6 @@ urlpatterns = [
     path('token/blacklist', TokenBlacklistView.as_view(), name='token_blacklist'),
     
     #Path to API basic endpoint documentation
-    path("docs/", views.index)
+    path("docs/", views.index),
+    
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

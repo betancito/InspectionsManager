@@ -22,10 +22,11 @@ import CheckModal from "../components/dashboard/CheckModal";
 import { useDispatch } from "react-redux";
 import { openCheckModal } from "../features/slicers/checkSlice";
 import { logout } from "../features/slicers/authSlice";
-import { API_URL } from "../utils/constants";
+import { API_URL } from "../utils/types";
 import { RootState } from "../features/store";
 import { useSelector } from "react-redux";
-import { InspectionModel as Inspection } from "../utils/constants";
+import { InspectionModel as Inspection } from "../utils/types";
+import Profile from "../components/dashboard/userProfile";
 
 
 const Dashboard: React.FC = () => {

@@ -1,18 +1,20 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import { API_URL } from "../../utils/constants";
+import { API_URL } from "../../utils/types";
 
 interface DecodedToken {
     token_type: string;
     exp: number;
     iat: number;
     user_id: number;
+    
     is_admin: boolean;
     email: string;
 }
 
 interface AuthState {
+    user: any | null;
     access: string | null;
     refresh: string | null;
     isAdmin: boolean;
@@ -122,6 +124,16 @@ const authSlice = createSlice({
             state.isAuthenticated = false;
             state.isAdmin = false;
         },
+        setAuthUser: (state, action) => {
+            state.isAuthenticated = true;
+            state.user = action.payload;
+            state.isAdmin = action.payload.is_admin;
+        },
+        clearAuth: (state) => {
+            state.isAuthenticated = false;
+            state.user = null;
+            state.isAdmin = false;
+        }
     },
     extraReducers: (builder) => {
         builder
@@ -153,4 +165,4 @@ const authSlice = createSlice({
 })
 
 export default authSlice.reducer;
-export const { logout } = authSlice.actions;
+export const { logout, setAuthUser, clearAuth} = authSlice.actions;

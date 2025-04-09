@@ -12,7 +12,7 @@ import {
   Card,
   CardMedia,
 } from "@mui/material";
-import { API_URL, InspectionModel } from "../utils/constants";
+import { API_URL, InspectionModel } from "../utils/types";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { RootState } from "../features/store";
 import { useLocation, useParams } from "react-router-dom";

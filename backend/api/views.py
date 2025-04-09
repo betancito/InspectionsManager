@@ -18,6 +18,13 @@ from .serializers.auth_serializers import CustomAuthSerializer
 from .serializers.inspection_serializer import InspectionSerializer
 from .utils.photo_edit import edit_img
 
+#Auth0 imports
+from rest_framework.authentication import BaseAuthentication
+from rest_framework.exceptions import AuthenticationFailed
+from django.contrib.auth.models import User
+import jwt
+from django.conf import settings
+
 
 #View to render api index showing endpoints and basic usage
 def index(request):
@@ -169,3 +176,34 @@ class CompleteInspectionView(APIView):
             import traceback
             print(traceback.format_exc())
             return Response({'Error': str(e)}, status=500)
+        
+from rest_framework.authentication import BaseAuthentication
+from rest_framework.exceptions import AuthenticationFailed
+import jwt
+from django.contrib.auth.models import User
+
+class Auth0Authentication(BaseAuthentication):
+    def authenticate(self, request):
+        auth_header = request.META.get('HTTP_AUTHORIZATION')
+        if not auth_header:
+            return None
+
+        try:
+            token = auth_header.split(' ')[1]
+            payload = jwt.decode(
+                token,
+                settings.PUBLIC_KEY,
+                algorithms=['RS256'],
+                audience=settings.API_IDENTIFIER,
+                issuer=f"https://{settings.AUTH0_DOMAIN}/"
+            )
+        except jwt.ExpiredSignatureError:
+            raise AuthenticationFailed('Token has expired')
+        except jwt.InvalidTokenError:
+            raise AuthenticationFailed('Invalid token')
+
+        user_id = payload['sub']
+        user, _ = User.objects.get_or_create(username=user_id)
+        return (user, token)
+    
+

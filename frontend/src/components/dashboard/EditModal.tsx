@@ -1,6 +1,6 @@
 // src/components/inspections/EditInspectionModal.tsx
 import React, { useState, useEffect } from "react";
-import {InspectionModel as Inspection} from "../../utils/constants";
+import {InspectionModel as Inspection} from "../../utils/types";
 import {
   Dialog,
   DialogTitle,

@@ -13,6 +13,16 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import os
 from datetime import timedelta
+import json
+from urllib import request
+from cryptography.x509 import load_pem_x509_certificate
+from cryptography.hazmat.backends import default_backend
+from jose import jwt
+from jose.exceptions import JWTError
+from jose.utils import base64url_decode
+import requests
+
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -49,8 +59,11 @@ INSTALLED_APPS = [
 
 
 REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',  # Enable JWT
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
 }
 
@@ -72,6 +85,10 @@ CORS_ALLOWED_ORIGINS = [
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173", # React
 ]
+CORS_ORIGIN_WHITELIST = (
+    "http://localhost:5173",
+)
+
 CORS_ALLOW_CREDENTIALS = True
 CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_HTTP_ONLY = True
@@ -178,3 +195,54 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 #Ensure path is created on startup
 if not os.path.exists(MEDIA_ROOT):
     os.makedirs(MEDIA_ROOT)
+    
+#Auth0 settings
+AUTH0_DOMAIN = os.getenv('AUTH0_DOMAIN')
+API_IDENTIFIER = os.getenv('AUTH0_API_IDENTIFIER')
+PUBLIC_KEY = None
+JWT_ISSUER = None
+
+if AUTH0_DOMAIN:
+    jsonurl = request.urlopen('https://' + AUTH0_DOMAIN + '/.well-known/jwks.json')
+    jwks = json.loads(jsonurl.read().decode('utf-8'))
+    cert = '-----BEGIN CERTIFICATE-----\n' + jwks['keys'][0]['x5c'][0] + '\n-----END CERTIFICATE-----'
+    certificate = load_pem_x509_certificate(cert.encode('utf-8'), default_backend())
+    PUBLIC_KEY = certificate.public_key()
+    JWT_ISSUER = 'https://' + AUTH0_DOMAIN + '/'
+
+
+def jwt_get_username_from_payload_handler(payload):
+    return 'auth0user'
+
+from jose import jwt
+from jose.exceptions import JWTError
+from jose.utils import base64url_decode
+import requests
+
+def get_public_key(token):
+    jwks_url = f"https://{AUTH0_DOMAIN}/.well-known/jwks.json"
+    jwks = requests.get(jwks_url).json()
+    unverified_header = jwt.get_unverified_header(token)
+    rsa_key = {}
+    for key in jwks['keys']:
+        if key['kid'] == unverified_header['kid']:
+            rsa_key = {
+                'kty': key['kty'],
+                'kid': key['kid'],
+                'use': key['use'],
+                'n': key['n'],
+                'e': key['e']
+            }
+    if not rsa_key:
+        raise JWTError("Unable to find appropriate key")
+    return rsa_key
+
+
+JWT_AUTH = {
+    'JWT_PAYLOAD_GET_USERNAME_HANDLER': jwt_get_username_from_payload_handler,
+    'JWT_PUBLIC_KEY': PUBLIC_KEY,
+    'JWT_ALGORITHM': 'RS256',
+    'JWT_AUDIENCE': API_IDENTIFIER,
+    'JWT_ISSUER': JWT_ISSUER,
+    'JWT_AUTH_HEADER_PREFIX': 'Bearer',
+}
