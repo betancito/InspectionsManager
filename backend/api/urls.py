@@ -11,12 +11,22 @@ from . import views
 
 
 urlpatterns = [
-    #Inspections Paths
+#Inspections Paths
     path('inspections/', views.InspectionView.as_view(), name='inspections_all'),
     path('inspections/<int:id>/', views.InspectionView.as_view(), name='inspections_one'),
     path('inspections/complete/<int:id>/', csrf_exempt(views.CompleteInspectionView.as_view()), name='complete_inspection'),
     
-    #JWTauth endpoints
+#Activities Paths
+    #Path for normal HTTP requests refering to activities in specific 
+    path('activities/', views.ActivityView.as_view(), name='activities'),
+    #Path for HTTP requests for activities refering to an specific inspection
+    path('activities/inspection/<int:inspection_id>/', views.ActivityView.as_view(), name='activities_inspection'),
+    #path for excel creation
+    ####path('activities/excel/', views.ActivityExcelView.as_view(), name='activities_excel'),
+    
+    
+#JWTauth endpoints
+    #This one is the default one from JWT to obtain the token pair and authenticate the user
     path("token/", views.CustomAuthView.as_view(), name='token_obtain_pair'),
     
     #This one is with the purpose of refreshing the token for session prevalence in the frontend
@@ -25,6 +35,6 @@ urlpatterns = [
     #This is to blacklist the tokens as soon as expired or blacklist the last one after generated
     path('token/blacklist', TokenBlacklistView.as_view(), name='token_blacklist'),
     
-    #Path to API basic endpoint documentation
+#Path to API basic endpoint documentation
     path("docs/", views.index)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

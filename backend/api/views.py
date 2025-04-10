@@ -12,11 +12,13 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 #Models
 from .models.inspection import Inspection
+from .models.activity import Activity
 
 #Serializers
 from .serializers.auth_serializers import CustomAuthSerializer
 from .serializers.inspection_serializer import InspectionSerializer
 from .utils.photo_edit import edit_img
+from .serializers.activity_serializer import ActivitySerializer
 
 
 #View to render api index showing endpoints and basic usage
@@ -169,3 +171,63 @@ class CompleteInspectionView(APIView):
             import traceback
             print(traceback.format_exc())
             return Response({'Error': str(e)}, status=500)
+        
+#Activities methods
+class ActivityView(APIView):
+    #Get all or one
+    def get(self, request):
+        try:
+            activities = Activity.objects.all()
+            serializer = ActivitySerializer(activities, many=True)
+            return Response(serializer.data)
+        except Exception as e:
+            print(f"Error: {e}")
+            return Response({'Error': str(e)})
+    
+    #Create 
+    def post(self, request):        
+        try:
+            serializer = ActivitySerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=201)
+            return Response(serializer.errors, status=400)
+        except Exception as e:
+            print(f"Error: {e}")
+            return Response ({"Error": str(e)})
+        
+    #Update Activity
+    def put(self, request, id):
+        try:
+            activity = get_object_or_404(Activity, id=id)
+            serializer = ActivitySerializer(activity, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            print(request.data)
+        except Exception as e:
+            print(f"Error: {e}")
+            return Response({'Error': str(e)})
+    
+    #Delete Activity
+    def delete(self, request, id):
+        try:
+            activity = get_object_or_404(Activity, id=id)
+            if not activity:
+                return Response(f'Error, activity with id:{id} not found')
+            else:
+                activity.delete()
+                return Response(f'Activity with id:{id} deleted successfully')
+        except Exception as e:
+            print(f"Error: {e}")
+            return Response({'Error': str(e)})
+        
+    #Get activities based on inspection_id
+    def get(self, request, inspection_id):
+        try:
+            activities = Activity.objects.filter(inspection_id=inspection_id)
+            serializer = ActivitySerializer(activities, many=True)
+            return Response(serializer.data)
+        except Exception as e:
+            print(f"Error: {e}")
+            return Response({'Error': str(e)})
