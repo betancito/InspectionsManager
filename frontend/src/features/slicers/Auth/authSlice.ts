@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import { API_URL } from "../../utils/constants";
+import { API_URL } from "../../../utils/types";
 
 interface DecodedToken {
     token_type: string;

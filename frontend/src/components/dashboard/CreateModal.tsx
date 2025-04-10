@@ -7,15 +7,7 @@ import {
   TextField,
   Button,
 } from "@mui/material";
-
-//Inspection Model for saving new inspections
-export interface Inspection {
-  title: string;
-  description: string;
-  latitude: number;
-  longitude: number;
-  due_date: string;
-}
+import { InspectionModel as Inspection} from "../../utils/types";
 
 //Props for the CreateModal
 interface props {

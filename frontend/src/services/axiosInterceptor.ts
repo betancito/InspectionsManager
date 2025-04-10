@@ -1,6 +1,6 @@
 import axios from "axios";
 import {store} from "../features/store";
-import { refreshToken } from "../features/slicers/authSlice";
+import { refreshToken } from "../features/slicers/Auth/authSlice";
 
 const setupAxiosInterceptors = () => {
     axios.interceptors.request.use(
