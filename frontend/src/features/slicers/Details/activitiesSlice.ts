@@ -1,9 +1,8 @@
-import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 const API_URL = import.meta.env.VITE_API_URL;
 
 interface Activity {
-  open: boolean;
   activityId: number | null;
   inspectionId: number | null;
   title: string;
@@ -34,7 +33,7 @@ export const fetchActivities = createAsyncThunk(
   "activities/fetchActivities",
   async (inspectionId: number, { rejectWithValue }) => {
     try{
-      const response = await axios.get(`${API_URL}/activities/inspection/${inspectionId}/`);
+      const response = await axios.get(`${API_URL}/inspection/${inspectionId}/activities/`);
       return response.data;
     } catch (error) {
       console.error("Error fetching activities:", error);

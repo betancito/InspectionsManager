@@ -17,7 +17,7 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { RootState } from "../features/store";
 import { useLocation, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import Activies from "../components/details/Activies";
+import Activies from "../components/details/Activities";
 
 const Details: React.FC = () => {
   const { isAdmin } = useSelector((state: RootState) => state.auth);

@@ -2,6 +2,8 @@ import { configureStore } from '@reduxjs/toolkit';
 import checkModalReducer from './slicers/dashboard/checkSlice';
 import authReducer from './slicers/Auth/authSlice';
 import activiyReducer from './slicers/Details/activitiesSlice';
+import createActivityReducer from './slicers/Details/createActivitySlice';
+import uploadActivitiesReducer from './slicers/Details/uploadActivitiesSlice';
 
 
 export const store = configureStore({
@@ -9,6 +11,8 @@ export const store = configureStore({
       checkModal: checkModalReducer,
       auth: authReducer,
       activities:  activiyReducer,
+      createActivity: createActivityReducer,
+      uploadActivities: uploadActivitiesReducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({

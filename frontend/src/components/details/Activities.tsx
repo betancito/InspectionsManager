@@ -20,12 +20,17 @@ import CreateActivityModal from "./CreateActivity";
 import { InspectionModel as Inspection } from "../../utils/types";
 import { fetchActivities } from "../../features/slicers/Details/activitiesSlice";
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import { openActivityModal } from "../../features/slicers/Details/createActivitySlice";
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import { createExcelTemplate } from "../../utils/excelHelpers";
+import UploadExcelModal from "./UploadActivities";
 
 
 const Activies: React.FC<{ inspection: Inspection }> = ({ inspection }) => {
   const dispatch =  useAppDispatch();
   const { activities, loading, error } = useAppSelector((state) => state.activities);
   const inspection_id = inspection.id
+
 
   useEffect(() => {
     dispatch(fetchActivities(inspection_id))
@@ -83,12 +88,14 @@ const Activies: React.FC<{ inspection: Inspection }> = ({ inspection }) => {
           <Button
             variant="contained"
             color="primary"
+            onClick={() => dispatch(openActivityModal(inspection))}
           >
             Crear nueva actividad
           </Button>
-          <Button>
-
-          </Button>
+          <UploadExcelModal 
+            inspection={inspection}
+            onComplete={() => dispatch(fetchActivities(inspection.id))}
+          />
         </Box>
         {activities.length > 0 ? (
           <TableContainer>
@@ -120,8 +127,18 @@ const Activies: React.FC<{ inspection: Inspection }> = ({ inspection }) => {
             No hay actividades disponibles para esta inspección.
           </Typography>
         )}
+        <Button
+          variant ="outlined"
+          color="info"
+          startIcon={<CloudDownloadIcon />}
+          onClick={createExcelTemplate}
+        >
+          Descargar plantilla de actividades
+        </Button>
       </Container>
-      <CreateActivityModal/>
+      
+      <CreateActivityModal inspection={inspection}/>
+
     </>
   );
 };

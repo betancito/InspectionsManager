@@ -63,7 +63,7 @@ export const completeInspection = createAsyncThunk(
     const token = localStorage.getItem("access");
     if (!token) {
       return rejectWithValue(
-        "Error en la authenticación ingrese de nuevo"
+        "Error en la authenticación, ingrese de nuevo"
       );
     }
 

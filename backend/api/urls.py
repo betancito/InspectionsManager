@@ -18,11 +18,10 @@ urlpatterns = [
     
 #Activities Paths
     #Path for normal HTTP requests refering to activities in specific 
-    path('activities/', views.ActivityView.as_view(), name='activities'),
+    path('activities/', views.ActivityView.as_view(), name='activities_all'),
+    path('activities/<int:activity_id>/', views.ActivityView.as_view(), name='activity_one'),
     #Path for HTTP requests for activities refering to an specific inspection
-    path('activities/inspection/<int:inspection_id>/', views.ActivityView.as_view(), name='activities_inspection'),
-    #path for excel creation
-    ####path('activities/excel/', views.ActivityExcelView.as_view(), name='activities_excel'),
+    path('inspection/<int:inspection_id>/activities/', views.ActivityView.as_view(), name='activities_by_inspection'),
     
     
 #JWTauth endpoints

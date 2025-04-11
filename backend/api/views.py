@@ -175,27 +175,90 @@ class CompleteInspectionView(APIView):
 #Activities methods
 class ActivityView(APIView):
     #Get all or one
-    def get(self, request):
-        try:
-            activities = Activity.objects.all()
-            serializer = ActivitySerializer(activities, many=True)
-            return Response(serializer.data)
-        except Exception as e:
-            print(f"Error: {e}")
-            return Response({'Error': str(e)})
-    
+    def get(self, request, *args, **kwargs):
+        if not kwargs:
+            try:
+                activities = Activity.objects.all()
+                serializer = ActivitySerializer(activities, many=True)
+                return Response(serializer.data)
+            except Exception as e:
+                print(f"Error: {e}")
+                return Response({'Error': str(e)})
+        elif 'activity_id' in kwargs:
+            try:
+                activity = get_object_or_404(Activity, id=kwargs['activity_id'])
+                serializer = ActivitySerializer(activity)
+                return Response(serializer.data)
+            except Exception as e:
+                print(f"Error: {e}")
+                return Response({'Error': str(e)})
+        elif 'inspection_id' in kwargs:
+            try:
+                activities = Activity.objects.filter(inspection_id=kwargs['inspection_id'])
+                serializer = ActivitySerializer(activities, many=True)
+                return Response(serializer.data)
+            except Exception as e:
+                print(f"Error: {e}")
+                return Response({'Error': str(e)})
+
     #Create 
-    def post(self, request):        
+    def post(self, request, *args, **kwargs):        
         try:
-            serializer = ActivitySerializer(data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=201)
-            return Response(serializer.errors, status=400)
+            inspection_id = kwargs.get('inspection_id')
+            # Check if inspection_id is provided
+            if not inspection_id:
+                return Response({'Error': 'inspection_id is required'}, status=400)
+            
+            # Collect Inspection model from Inspection number provided
+            inspection = Inspection.objects.get(pk=inspection_id)
+            
+            # Handle creation of multiple activities if array is provided
+            if isinstance(request.data, list):
+                data_batch = request.data
+                for activity_data in data_batch:
+                    activity_data['inspection'] = inspection.id
+                    serializer = ActivitySerializer(data=activity_data)
+                    if serializer.is_valid():
+                        # Set handle creation and success response
+                        activity = serializer.save()
+                        print(serializer)
+                    return Response(activity, status=201)
+                
+            # handle creation if only one activity
+            else:
+                data = request.data.copy()
+                data['inspection'] = inspection.id
+                serializer = ActivitySerializer(data=data)
+                if serializer.is_valid():
+                    # Set handle creation and success response
+                    activity = serializer.save()
+                    print(serializer)
+                    return Response(ActivitySerializer(activity).data, status=201)
+                else:
+                    print(serializer)
+                    return Response(serializer.errors, status=400)
         except Exception as e:
-            print(f"Error: {e}")
-            return Response ({"Error": str(e)})
-        
+            activity_data = request.data
+            inspection_id = kwargs.get('inspection_id')
+            inspection = Inspection.objects.get(pk=inspection_id)
+
+            # Log the error and print the request data for debugging
+            for activity in activity_data:
+                activity['inspection'] = inspection.id
+                serializer = ActivitySerializer(data=activity)
+                if serializer.is_valid():
+                    activity = serializer.save()
+                    print(activity)
+                else:
+                    print(serializer.errors)
+                print(f"Activity data: {activity}")
+                print(f"serializer: {serializer}")
+            print(f"type: {type(activity_data)}")
+            print(isinstance(activity_data, list))
+            print(len(activity_data))
+            print(request.data)
+            return Response({'Error': str(e)}, status=500)
+
     #Update Activity
     def put(self, request, id):
         try:
@@ -222,12 +285,3 @@ class ActivityView(APIView):
             print(f"Error: {e}")
             return Response({'Error': str(e)})
         
-    #Get activities based on inspection_id
-    def get(self, request, inspection_id):
-        try:
-            activities = Activity.objects.filter(inspection_id=inspection_id)
-            serializer = ActivitySerializer(activities, many=True)
-            return Response(serializer.data)
-        except Exception as e:
-            print(f"Error: {e}")
-            return Response({'Error': str(e)})
