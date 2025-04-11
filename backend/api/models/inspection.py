@@ -16,7 +16,7 @@ def upload_to_edited(instance, filename):
 
 #InspectionModel
 class Inspection(models.Model):
-    title = models.CharField(max_length=255, blank=True, null=True)
+    title = models.CharField(max_length=255, blank=False, null=False)
     description = models.CharField(max_length=512, blank=False, null=False)
     due_date = models.DateField(blank=False, null=False)
     created_at = models.DateTimeField(auto_now_add=True)
