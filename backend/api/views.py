@@ -213,16 +213,22 @@ class ActivityView(APIView):
             inspection = Inspection.objects.get(pk=inspection_id)
             
             # Handle creation of multiple activities if array is provided
-            if isinstance(request.data, list):
-                data_batch = request.data
-                for activity_data in data_batch:
-                    activity_data['inspection'] = inspection.id
-                    serializer = ActivitySerializer(data=activity_data)
+            if len(request.data) > 1 and (type(request.data) == list):
+                activity_data = request.data
+                inspection_id = kwargs.get('inspection_id')
+                inspection = Inspection.objects.get(pk=inspection_id)
+                for activity in activity_data:
+                    activity['inspection'] = inspection.id
+                    serializer = ActivitySerializer(data=activity)
                     if serializer.is_valid():
-                        # Set handle creation and success response
-                        activity = serializer.save()
-                        print(serializer)
-                    return Response(activity, status=201)
+                        try:
+                            activity = serializer.save()
+                        except Exception as e:
+                            print(f"Error saving activity: {e}")
+                            return Response({'Error': str(e)}, status=500)
+                    else:
+                        return 
+                return Response(activity, status=201)
                 
             # handle creation if only one activity
             else:
@@ -232,31 +238,12 @@ class ActivityView(APIView):
                 if serializer.is_valid():
                     # Set handle creation and success response
                     activity = serializer.save()
-                    print(serializer)
                     return Response(ActivitySerializer(activity).data, status=201)
                 else:
-                    print(serializer)
                     return Response(serializer.errors, status=400)
         except Exception as e:
-            activity_data = request.data
-            inspection_id = kwargs.get('inspection_id')
-            inspection = Inspection.objects.get(pk=inspection_id)
 
             # Log the error and print the request data for debugging
-            for activity in activity_data:
-                activity['inspection'] = inspection.id
-                serializer = ActivitySerializer(data=activity)
-                if serializer.is_valid():
-                    activity = serializer.save()
-                    print(activity)
-                else:
-                    print(serializer.errors)
-                print(f"Activity data: {activity}")
-                print(f"serializer: {serializer}")
-            print(f"type: {type(activity_data)}")
-            print(isinstance(activity_data, list))
-            print(len(activity_data))
-            print(request.data)
             return Response({'Error': str(e)}, status=500)
 
     #Update Activity
