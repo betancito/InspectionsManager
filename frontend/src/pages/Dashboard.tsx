@@ -16,16 +16,16 @@ import CheckIcon from '@mui/icons-material/Check';
 import axios from "axios";
 import EditInspectionModal from "../components/dashboard/EditModal";
 import CreateInspectionModal from "../components/dashboard/CreateModal";
-import { Inspection as InspectionToSave } from "../components/dashboard/CreateModal";
+import { InspectionModel as InspectionToSave } from "../utils/types";
 import { Link } from "react-router-dom";
 import CheckModal from "../components/dashboard/CheckModal";
 import { useDispatch } from "react-redux";
-import { openCheckModal } from "../features/slicers/checkSlice";
-import { logout } from "../features/slicers/authSlice";
-import { API_URL } from "../utils/constants";
+import { openCheckModal } from "../features/slicers/dashboard/checkSlice";
+import { logout } from "../features/slicers/Auth/authSlice";
+import { API_URL } from "../utils/types";
 import { RootState } from "../features/store";
 import { useSelector } from "react-redux";
-import { InspectionModel as Inspection } from "../utils/constants";
+import { InspectionModel as Inspection } from "../utils/types";
 
 
 const Dashboard: React.FC = () => {

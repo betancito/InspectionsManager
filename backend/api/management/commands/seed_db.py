@@ -4,6 +4,7 @@ from faker import Faker
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from api.models.inspection import Inspection
+from api.models.activity import Activity
 
 fake = Faker()
 
@@ -55,6 +56,33 @@ class Command(BaseCommand):
             
             #Message to advice creation
             self.stdout.write(self.style.WARNING(f"Created inspection: {title}"))
+        
+        #for activities
+        for i in range (20):
+            #Variables for faking creation
+            fakeName= fake.name(),
+            in_charge_of = str(fakeName).replace("(", "")
+            in_charge_of = str(in_charge_of).replace(")", "")
+            in_charge_of = str(in_charge_of).replace("'", "")
+            in_charge_of = str(in_charge_of).replace(",", "")
+            title = fake.paragraph(nb_sentences=1)
+            description = fake.paragraph(nb_sentences=3)
+            latitude = round(random.uniform(-2, 12), 6)
+            longitude = round(random.uniform(-76, -68), 6)
+            inspection_id = Inspection.objects.get(id=random.randint(1, 5))
+            
+            #Creation of activity using faked variables 
+            activity = Activity.objects.create(
+                inspection= inspection_id,
+                title = title,
+                in_charge_of = in_charge_of,
+                description = description,
+                latitude = latitude,
+                longitude = longitude,
+            )
+            
+            #Message to advice creation
+            self.stdout.write(self.style.WARNING(f"Created activity: {title}"))
         
         #Message to advice process completion
         self.stdout.write(self.style.SUCCESS("Database seeding complete!"))

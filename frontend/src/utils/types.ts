@@ -18,3 +18,22 @@ export interface InspectionModel {
     completed_file: string;
     completed_editedFile: string;
 }
+
+export interface ActivityModel {
+    id: number;
+    InspectionId: number;
+    title: string;
+    description: string;
+    in_charge_of: string;
+    latitude: number;
+    longitude: number;
+    status: ActivityStatus;
+    created_at: string;
+    updated_at: string;
+}
+
+export enum ActivityStatus {
+    PENDING = "PENDING",
+    IN_PROGRESS = "IN_PROGRESS",
+    COMPLETED = "COMPLETED",
+}
