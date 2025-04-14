@@ -34,6 +34,13 @@ urlpatterns = [
     #This is to blacklist the tokens as soon as expired or blacklist the last one after generated
     path('token/blacklist', TokenBlacklistView.as_view(), name='token_blacklist'),
     
+    #Register path for new user registration
+    path("register/", views.RegistrationView.as_view(), name='user_registration'),
+    
+    #User Roles Management
+    path("user_roles/", views.UserRolesView.as_view(), name='user_roles'),
+    path("user_roles/<int:id>/", views.UserRolesView.as_view(), name='user_roles_update'),
+    
 #Path to API basic endpoint documentation
     path("docs/", views.index)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
