@@ -9,6 +9,8 @@ export interface InspectionModel {
     due_date: string;
     created_at: string;
     updated_at: string;
+    created_by: number;
+    updated_by: number;
     latitude: number;
     longitude: number;
     completed: boolean;
