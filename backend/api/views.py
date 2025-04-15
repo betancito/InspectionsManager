@@ -255,7 +255,7 @@ class CompleteInspectionView(APIView):
 class ActivityView(APIView):
     all_users = [IsAuthenticated()]
     admin_only = [IsAuthenticated(), IsAdminUser()]
-    admin_analyst= [IsAuthenticated(), IsAdminUser() or IsAnalystUser()]
+    admin_analyst= [IsAuthenticated(), IsAnalystUser() or IsAdminUser()]
     admin_inspector = [IsAuthenticated(), IsAdminUser() or IsInspectorUser()]
     admin_analyst_inspector = [IsAuthenticated(), IsAdminUser() or IsAnalystUser() or IsInspectorUser()]
     
@@ -320,6 +320,7 @@ class ActivityView(APIView):
             
             # Handle creation of multiple activities if array is provided
             if len(request.data) > 1 and (type(request.data) == list):
+
                 activity_data = request.data
                 for activity in activity_data:
                     activity['inspection'] = inspection.id
@@ -332,10 +333,11 @@ class ActivityView(APIView):
                             return Response({'Error': str(e)}, status=500)
                     else:
                         return 
-                return Response(activity, status=201)
+                return Response(activity_data, status=201)
                 
             # handle creation if only one activity
             else:
+                print(request.data)
                 data = request.data.copy()
                 data['inspection'] = inspection.id
                 serializer = ActivitySerializer(data=data)

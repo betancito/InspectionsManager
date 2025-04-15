@@ -93,6 +93,8 @@ const excelUploadSlice = createSlice({
           in_charge_of: row.inChargeOf || row.Encargado,
           latitude: Number(row.latitude || row.Latitud),
           longitude: Number(row.longitude || row.Longitud),
+          created_by: parseInt(localStorage.getItem('user_id') || '0'),
+          updated_by: parseInt(localStorage.getItem('user_id') || '0'),
         }));
       };
       reader.readAsArrayBuffer(file);

@@ -24,10 +24,16 @@ import { openActivityModal } from "../../features/slicers/Details/createActivity
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import { createExcelTemplate } from "../../utils/excelHelpers";
 import UploadExcelModal from "./UploadActivities";
+import { RootState } from "../../features/store";
+import { useSelector } from "react-redux";
 
 
 const Activies: React.FC<{ inspection: Inspection }> = ({ inspection }) => {
   const dispatch =  useAppDispatch();
+
+  //Collect user role for front render
+  const {role_group} = useSelector((state: RootState) => state.auth);
+
   const { activities, loading, error } = useAppSelector((state) => state.activities);
   const inspection_id = inspection.id
 
@@ -84,7 +90,8 @@ const Activies: React.FC<{ inspection: Inspection }> = ({ inspection }) => {
         <Typography variant="h4" gutterBottom>
           Actividades
         </Typography>
-        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+        {(role_group === 'admin' || role_group === 'analyst') && (
+          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
           <Button
             variant="contained"
             color="primary"
@@ -97,12 +104,12 @@ const Activies: React.FC<{ inspection: Inspection }> = ({ inspection }) => {
             onComplete={() => dispatch(fetchActivities(inspection.id))}
           />
         </Box>
+        )}
         {activities.length > 0 ? (
           <TableContainer>
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Id</TableCell>
                   <TableCell>Título</TableCell>
                   <TableCell>Descripción</TableCell>
                   <TableCell>Encargado</TableCell>
@@ -112,7 +119,6 @@ const Activies: React.FC<{ inspection: Inspection }> = ({ inspection }) => {
               <TableBody>
                 {activities.map((activity) => (
                   <TableRow key={activity.id}>
-                    <TableCell>{activity.id}</TableCell>
                     <TableCell>{activity.title}</TableCell>
                     <TableCell>{activity.description}</TableCell>
                     <TableCell>{activity.in_charge_of}</TableCell>
@@ -127,14 +133,16 @@ const Activies: React.FC<{ inspection: Inspection }> = ({ inspection }) => {
             No hay actividades disponibles para esta inspección.
           </Typography>
         )}
+        {(role_group === 'admin' || role_group === 'analyst') && (
         <Button
           variant ="outlined"
           color="info"
           startIcon={<CloudDownloadIcon />}
-          onClick={createExcelTemplate}
+          onClick={() => (console.log(role_group))}
         >
           Descargar plantilla de actividades
         </Button>
+        )}
       </Container>
       
       <CreateActivityModal inspection={inspection}/>

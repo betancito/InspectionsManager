@@ -55,6 +55,7 @@ const EditInspectionModal: React.FC<props> = ({
         latitude: parseFloat(latitude),
         longitude: parseFloat(longitude),
         due_date: dueDate,
+        updated_by: parseInt(localStorage.getItem("user_id")||"0"),
       };
       onSave(updatedInspection);
     }

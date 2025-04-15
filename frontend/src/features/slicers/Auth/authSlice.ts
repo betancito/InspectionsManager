@@ -10,12 +10,13 @@ interface DecodedToken {
     user_id: number;
     is_admin: boolean;
     email: string;
+    role_group: string;
 }
 
 interface AuthState {
     access: string | null;
     refresh: string | null;
-    isAdmin: boolean;
+    role_group: string;
     isAuthenticated: boolean;
     error: string | null;
 }
@@ -23,10 +24,8 @@ interface AuthState {
 const initialState: AuthState = {
     access: localStorage.getItem('access'),
     refresh: localStorage.getItem('refresh'),
-
     isAuthenticated: !!localStorage.getItem('access'),
-    isAdmin: localStorage.getItem('is_admin') === 'true',
-
+    role_group: localStorage.getItem('role_group') || "",
     error : null
 };
 
@@ -57,15 +56,18 @@ export const login = createAsyncThunk(
         console.log("decoded token", decodedToken);
     
         //extract if logged user is admin
-        const {is_admin, email} = decodedToken;
+        const {is_admin, email, user_id, role_group} = decodedToken;
     
         //Store the token in the local storage
         localStorage.setItem("access", access);
         localStorage.setItem("refresh", refresh);
+        localStorage.setItem("user_id", user_id.toString());
+        localStorage.setItem("role_group", role_group);
         localStorage.setItem("is_admin", is_admin ? "true" : "false");
         localStorage.setItem("email", email);
+
     
-        return { access , refresh, is_admin, email };
+        return { access , refresh, role_group , email };
         } catch (error) {
         console.error("Login Failed:", error);
         return rejectWithValue("Login failed");
@@ -93,7 +95,7 @@ export const refreshToken = createAsyncThunk(
 
             return {
                 access,
-                isAdmin: (decodedToken as any).is_admin,    
+                role_group: (decodedToken as any).role_group    
             };
         } catch (error) {
             localStorage.removeItem('access');
@@ -116,11 +118,13 @@ const authSlice = createSlice({
             localStorage.removeItem('refresh');
             localStorage.removeItem('is_admin');
             localStorage.removeItem('email');
+            localStorage.removeItem('user_id');
+            localStorage.removeItem('role_group');
 
             state.access = null;
             state.refresh = null;
             state.isAuthenticated = false;
-            state.isAdmin = false;
+            state.role_group = "";
         },
     },
     extraReducers: (builder) => {
@@ -129,7 +133,7 @@ const authSlice = createSlice({
             .addCase(login.fulfilled, (state, action) => {
                 state.access = action.payload.access;
                 state.refresh = action.payload.refresh;
-                state.isAdmin = action.payload.is_admin;
+                state.role_group = action.payload.role_group;
                 state.isAuthenticated = true;
             })
             .addCase(login.rejected, (state, action) => {
@@ -140,7 +144,7 @@ const authSlice = createSlice({
             .addCase(refreshToken.fulfilled, (state, action) => {
                 state.access = action.payload.access;
                 state.isAuthenticated = true;
-                state.isAdmin = action.payload.isAdmin;
+                state.role_group = action.payload.role_group;
             })
             .addCase(refreshToken.rejected, (state, action) => {
                 console.error("Token refresh failed:", action.payload);
