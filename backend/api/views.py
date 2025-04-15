@@ -12,7 +12,7 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated
-from permissions.permissions import IsAdminUser, IsAnalystUser, IsInspectorUser
+from permissions.permissions import IsAdminUser, IsAnalystUser, IsInspectorUser, IsViewerUser
 
 #Models
 from .models.inspection import Inspection
@@ -87,12 +87,29 @@ class UserRolesView(APIView):
             return Response({'Error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 #Inspections Methods
-class InspectionView(APIView):   
-    permission_classes = (IsAuthenticated,)
+class InspectionView(APIView):
+    # Define class attributes for different permission combinations
+    all_users = [IsAuthenticated()]
+    admin_only = [IsAuthenticated(), IsAdminUser()]
+    admin_analyst= [IsAuthenticated(), IsAdminUser() or IsAnalystUser()]
+    admin_inspector = [IsAuthenticated(), IsAdminUser() or IsInspectorUser()]
+    
+    # Set Default permissions for method type based off role
+    def get_permissions(self):
+        """
+        Instantiates and returns the list of permissions based on the HTTP method.
+        """
+        if self.request.method == 'GET':
+            # Any authenticated user can see inspections
+            return self.all_users
+        elif self.request.method in ['POST', 'PUT', 'DELETE']:
+            # Only admin can create, update, or delete
+            return self.admin_only
+        return [] 
+    
+    
     #getAllOrGetOne
     def get(self, request, id=None):
-        #Any authenticated user can see inspections
-        self.permission_classes = (IsAuthenticated,)
         try:
             if id:
                 inspection = get_object_or_404(Inspection, id=id)
@@ -107,8 +124,6 @@ class InspectionView(APIView):
     
     #Update one
     def put(self, request, id):
-        # only admin can update inspections
-        self.permission_classes = (IsAuthenticated, IsAdminUser)
         try:
             inspection = get_object_or_404(Inspection, id=id)
             serializer = InspectionSerializer(inspection, data=request.data)
@@ -122,8 +137,6 @@ class InspectionView(APIView):
 
     #Delete
     def delete(self, request, id):
-        # only admin can delete inspections
-        self.permission_classes = (IsAuthenticated, IsAdminUser,)
         try:
             inspection = get_object_or_404(Inspection, id=id)
             if not inspection:
@@ -137,8 +150,6 @@ class InspectionView(APIView):
 
     #Post
     def post(self, request):
-        # only admin can create   
-        self.permission_classes = (IsAuthenticated, IsAdminUser)
         try:
             serializer = InspectionSerializer(data=request.data)
             if serializer.is_valid():
@@ -151,10 +162,9 @@ class InspectionView(APIView):
 
 #Complete inspection methods
 class CompleteInspectionView(APIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [IsAuthenticated, IsAdminUser | IsInspectorUser]
     def put(self, request, id):
         ##Only admin and inspector can complete an inspection
-        self.permission_classes = (IsAuthenticated, IsInspectorUser, IsAdminUser)
         try:
             inspection = Inspection.objects.get(pk=id)
             # Get values from data
@@ -243,6 +253,28 @@ class CompleteInspectionView(APIView):
         
 #Activities methods
 class ActivityView(APIView):
+    all_users = [IsAuthenticated()]
+    admin_only = [IsAuthenticated(), IsAdminUser()]
+    admin_analyst= [IsAuthenticated(), IsAdminUser() or IsAnalystUser()]
+    admin_inspector = [IsAuthenticated(), IsAdminUser() or IsInspectorUser()]
+    admin_analyst_inspector = [IsAuthenticated(), IsAdminUser() or IsAnalystUser() or IsInspectorUser()]
+    
+    # Set Default permissions for method type based off role
+    def get_permissions(self):
+        """
+        Instantiates and returns the list of permissions based on the HTTP method.
+        """
+        if self.request.method == 'GET':
+            # Any authenticated user can see inspections
+            return self.all_users
+        elif self.request.method in ['POST', 'DELETE']:
+            # Only admin can create or delete
+            return self.admin_analyst
+        elif self.request.method == 'PUT':
+            # Only admin, analyst and inspector can update
+            return self.admin_analyst_inspector
+        return [] 
+    
     permission_classes = (IsAuthenticated,)
     #Get all or one
     def get(self, request, *args, **kwargs):
