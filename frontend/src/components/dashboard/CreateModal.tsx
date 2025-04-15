@@ -35,6 +35,8 @@ const CreateInspectionModal: React.FC<props> = ({
       latitude: parseFloat(latitude),
       longitude: parseFloat(longitude),
       due_date: dueDate,
+      created_by: parseInt(localStorage.getItem("user_id") || "0"),
+      updated_by: parseInt(localStorage.getItem("user_id") || "0"),
     };
     onSave(inspectionTosave);
   };

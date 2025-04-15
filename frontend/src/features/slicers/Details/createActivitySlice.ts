@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 import { InspectionModel } from "../../../utils/types";
+import { create } from "@mui/material/styles/createTransitions";
 const API_URL = import.meta.env.VITE_API_URL;
 
 interface Activity {
@@ -63,10 +64,12 @@ export const createActivity = createAsyncThunk(
 
         const formData = {
             title: title,
-            description: description,
             in_charge_of: inChargeOf,
+            description: description,
             latitude: latitude,
             longitude: longitude,
+            created_by: parseInt(localStorage.getItem("user_id") || "0"),
+            updated_by: parseInt(localStorage.getItem("user_id") || "0"),
         };
         try {
             const response = await axios.post(
@@ -137,4 +140,3 @@ const createActivitySlice = createSlice({
 
 export const { openActivityModal, closeActivityModal, setActivity, setActivityField } = createActivitySlice.actions;
 export default createActivitySlice.reducer;
-   

@@ -13,6 +13,7 @@ import {
   Button,
 } from "@mui/material";
 import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
 import axios from "axios";
 import EditInspectionModal from "../components/dashboard/EditModal";
 import CreateInspectionModal from "../components/dashboard/CreateModal";
@@ -35,7 +36,7 @@ const Dashboard: React.FC = () => {
   const [error, setError] = useState<string>("");
   
   // Auth check
-  const {isAdmin} = useSelector((state: RootState) => state.auth);
+  const {role_group} = useSelector((state: RootState) => state.auth);
 
   // States for modals:
   const [inspections, setInspections] = useState<Inspection[]>([]);
@@ -149,7 +150,7 @@ const Dashboard: React.FC = () => {
         <Typography variant="h4" gutterBottom>
           Dashboard
         </Typography>
-        { isAdmin &&
+        { role_group &&
         <Button variant="contained" color="primary" onClick={()=>setCreateModalOpen(true)}>
           Crear inspección
         </Button>
@@ -177,17 +178,17 @@ const Dashboard: React.FC = () => {
                   <TableCell>{inspection.title.includes("(") ? inspection.title.slice(2, -3) : inspection.title}</TableCell>
                   <TableCell>{inspection.due_date}</TableCell>
                   <TableCell>
-                    { isAdmin &&
+                    { role_group === 'admin' &&(
                     <Button
                       variant="outlined"
                       color="primary"
                       size="small"
-                      onClick={() => handleEditClick(inspection)}
+                      onClick={() => (handleEditClick(inspection))}
                       style={{ marginRight: "0.5rem" }}
                     >
                       Editar
                     </Button>
-                    }
+                    )}
                     <Link to={`/inspection/${inspection.id}`} state={{inspection}}>
                     <Button
                       variant="outlined"
@@ -198,7 +199,7 @@ const Dashboard: React.FC = () => {
                       Detalles
                     </Button>
                     </Link>
-                    { isAdmin &&
+                    { role_group === 'admin' &&
                     <Button
                       variant="contained"
                       color="error"
@@ -209,21 +210,33 @@ const Dashboard: React.FC = () => {
                     </Button>
                     }
                   </TableCell>
-                  {inspection.completed ? (
-                    <TableCell sx={{justifyContent: "center" }}>
-                      <CheckIcon color="success" />
-                    </TableCell>
+                  {(role_group === 'admin' || role_group === 'inspector') ? (
+                    inspection.completed ? (
+                      <TableCell sx={{justifyContent: "center"}}>
+                        <CheckIcon color="success" />
+                      </TableCell>
+                    ) : (
+                      <TableCell>
+                        <Button 
+                          variant="outlined" 
+                          color="warning" 
+                          onClick={() => dispatch(openCheckModal(inspection.id))}
+                        >
+                          Completar Inspección
+                        </Button>
+                      </TableCell>
+                    )
                   ) : (
-                    <TableCell>
-                    <Button 
-                      variant="outlined" 
-                      color="warning" 
-                      onClick={()=>dispatch(openCheckModal(inspection.id))}
-                    >
-                      Completar Inspección
-                    </Button>
-                  </TableCell>
-                )}
+                    /* For other roles (analyst, viewer), just show check or X icon */
+                    <TableCell sx={{justifyContent: "center"}}>
+                      {inspection.completed ? (
+                        <CheckIcon color="success" />
+                      ) : (
+                        <CloseIcon color="error" />
+                      )}
+                    </TableCell>
+                  )}
+                  
                 </TableRow>
               ))}
             </TableBody>
