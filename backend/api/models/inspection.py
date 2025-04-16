@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 #Method to update files to media
@@ -19,6 +20,8 @@ class Inspection(models.Model):
     title = models.CharField(max_length=255, blank=False, null=False)
     description = models.CharField(max_length=512, blank=False, null=False)
     due_date = models.DateField(blank=False, null=False)
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='inspections_updated', default=None)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='inspections_created', default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     latitude = models.FloatField(null=False, blank=False)

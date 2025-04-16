@@ -7,15 +7,7 @@ import {
   TextField,
   Button,
 } from "@mui/material";
-
-//Inspection Model for saving new inspections
-export interface Inspection {
-  title: string;
-  description: string;
-  latitude: number;
-  longitude: number;
-  due_date: string;
-}
+import { InspectionModel as Inspection} from "../../utils/types";
 
 //Props for the CreateModal
 interface props {
@@ -43,6 +35,8 @@ const CreateInspectionModal: React.FC<props> = ({
       latitude: parseFloat(latitude),
       longitude: parseFloat(longitude),
       due_date: dueDate,
+      created_by: parseInt(localStorage.getItem("user_id") || "0"),
+      updated_by: parseInt(localStorage.getItem("user_id") || "0"),
     };
     onSave(inspectionTosave);
   };
