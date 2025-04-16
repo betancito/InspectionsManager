@@ -29,7 +29,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pytest-cov pytest-django
+        pip install pytest-cov pytest-django python-dotenv Office365-REST-Python-Client
         
     - name: Run tests with coverage
       run: |
@@ -45,6 +45,11 @@ jobs:
         
     - name: Generate test report
       if: always()
+      env:
+        SHAREPOINT_SITE_URL: ${{ secrets.SHAREPOINT_SITE_URL }}
+        SHAREPOINT_USERNAME: ${{ secrets.SHAREPOINT_USERNAME }}
+        SHAREPOINT_PASSWORD: ${{ secrets.SHAREPOINT_PASSWORD }}
+        SHAREPOINT_LIST_NAME: ${{ secrets.SHAREPOINT_LIST_NAME }}
       run: |
         python -m pytest --junitxml=test-results.xml
         
