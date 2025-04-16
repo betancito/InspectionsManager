@@ -43,3 +43,11 @@ password: supersecret123
     `Inspector user:`  
 username: inspector  
 password: supersecret123
+
+    `Analyst user:`  
+username: analyst  
+password: supersecret123
+
+    `Viewer user:`  
+username: viewer  
+password: supersecret123

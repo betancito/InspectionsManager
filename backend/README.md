@@ -34,7 +34,11 @@ Install the required packages inside the `requirements.txt` file.
 ```
 
 4. **Run seeders to populate test data**   
-`NOTE: IS REALLY IMPORTANT FOR YOU TO KEEP IN MIND THAT FOR THIS VERSION THE BACKEND OR FRONTEND DOES NOT HAVE A REGISTER FEATURE SO YOU WILL HAVE TO USE THE ONES PROVIDED BY THE SEEDER THAT I WILL LEAVE AT THE END OF THE DOCUMENT`
+`NOTE: IS REALLY IMPORTANT FOR YOU TO KEEP IN MIND THAT FOR THIS VERSION THE BACKEND OR FRONTEND DOES NOT HAVE A REGISTER FEATURE SO YOU WILL HAVE TO USE THE ONES PROVIDED BY THE SEEDER THAT I WILL LEAVE AT THE END OF THE DOCUMENT. IS ALSO REALLY IMPORTANT FOR YOU TO CREATE THE PERMISSION GROUPS BEFORE SEEDING THE DATABASE`
+
+```bash
+    python3 manage.py create_default_groups
+```
 
 ```bash
     python3 manage.py seed_db
@@ -65,3 +69,15 @@ password: supersecret123
     `Inspector user:`  
 username: inspector  
 password: supersecret123
+
+    `Analyst user:`  
+username: Analyst  
+password: supersecret123
+
+     `Admin Viewer:`  
+username: viewer  
+password: supersecret123
+
+- **Note:**
+
+    It's really important to note that since a register feature was released there's no longer need to seed the database. It is now possible to just create the migrations, migrate them and create the default role groups and it will also work.
