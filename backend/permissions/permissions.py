@@ -29,6 +29,32 @@ class HasRolePermission(permissions.BasePermission):
         
         print("No role information found")
         return False
+    
+class IsAdminOrAnalystUser(HasRolePermission):
+    """
+    Permission to allow admin or analyst users access
+    """
+    def has_permission(self, request, view):
+        print(f"Checking permission for role: admin or analyst")
+        
+        # First check if user is authenticated
+        if not request.user or not request.user.is_authenticated:
+            print("User not authenticated")
+            return False
+
+        # Check if the user has the UserRoles model related to them
+        from permissions.models import UserRoles
+        try:
+            user_role = UserRoles.objects.get(user=request.user)
+            role_match = user_role.role_group == 'analyst' or 'admin'
+            print(f"Role from DB: {user_role.role_group}, Required: admin or analyst, Match: {role_match}")
+            return role_match
+        except UserRoles.DoesNotExist:
+            print("No UserRoles found for this user")
+            pass
+        
+        print("No role information found")
+        return False
 
 class IsAdminUser(HasRolePermission):
     """

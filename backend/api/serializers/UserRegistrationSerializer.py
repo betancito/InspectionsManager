@@ -9,10 +9,11 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     """
     password = serializers.CharField(write_only=True)
     confirm_password = serializers.CharField(write_only=True)
+    role_group = serializers.CharField(write_only=True)
     
     class Meta:
         model = User
-        fields = ('username', 'email', 'password', 'confirm_password', 'first_name', 'last_name')
+        fields = ('username', 'email', 'password', 'confirm_password', 'first_name', 'last_name', 'role_group')
     
     def validate(self, data):
         if data['password'] != data['confirm_password']:
@@ -21,6 +22,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         validated_data.pop('confirm_password')
+        role_group = validated_data.pop('role_group')
         user = User.objects.create_user(
             username = validated_data['username'],
             email = validated_data['email'],
@@ -28,13 +30,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             first_name = validated_data['first_name'],
             last_name = validated_data['last_name']
         )
+        UserRoles.objects.create(
+            user=user,
+            role_group=role_group
+        )
         return user
-
-#Serializer for role assignment 
-class UserRoleSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(source='user.username', read_only=True)
-    email = serializers.CharField(source='user.email', read_only=True)
-    
-    class Meta:
-        model = UserRoles
-        fields = ('id', 'username', 'email', 'role_group')
