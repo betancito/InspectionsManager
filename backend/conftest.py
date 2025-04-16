@@ -29,6 +29,17 @@ class SharePointReporter:
             'timestamp': datetime.datetime.now().isoformat()
         }
         self.start_time = time.time()
+        # Lista para almacenar información de cada prueba individual
+        self.individual_tests = []
+        
+    def add_test_result(self, test_name, result, duration, error_message=None):
+        self.individual_tests.append({
+            'name': test_name,
+            'result': result,  # 'passed', 'failed', 'skipped'
+            'duration': duration,
+            'error_message': error_message,
+            'timestamp': datetime.datetime.now().isoformat()
+        })
     
     def upload_to_sharepoint(self):
         if not all([SHAREPOINT_SITE_URL, SHAREPOINT_USERNAME, SHAREPOINT_PASSWORD]):
@@ -39,6 +50,7 @@ class SharePointReporter:
             return False
             
         try:
+            # Autenticación en SharePoint
             ctx_auth = AuthenticationContext(SHAREPOINT_SITE_URL)
             if ctx_auth.acquire_token_for_user(SHAREPOINT_USERNAME, SHAREPOINT_PASSWORD):
                 ctx = ClientContext(SHAREPOINT_SITE_URL, ctx_auth)
@@ -47,35 +59,45 @@ class SharePointReporter:
                 error_msg = ctx_auth.get_last_error() if hasattr(ctx_auth, 'get_last_error') else "Error desconocido"
                 print(f"Error al autenticar: {error_msg}")
                 return False
-                
-            # Crear el mensaje con el resumen de las pruebas
-            summary = (
-                f"Ejecución de pruebas - {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - "
-                f"Total: {self.test_results['total']}, "
-                f"Pasaron: {self.test_results['passed']}, "
-                f"Fallaron: {self.test_results['failed']}, "
-                f"Omitidas: {self.test_results['skipped']}, "
-                f"Duración: {self.test_results['duration']:.2f} segundos"
-            )
-            
-            if IN_CI:
-                summary = f"[CI/CD] {summary}"
             
             # Acceder a la lista de SharePoint
             print(f"Intentando acceder a la lista '{SHAREPOINT_LIST_NAME}'...")
             target_list = ctx.web.lists.get_by_title(SHAREPOINT_LIST_NAME)
             
-            item_properties = {
-                'Title': summary[:255]
-            }
+            # Subir cada prueba como un elemento individual
+            print(f"Subiendo {len(self.individual_tests)} pruebas individuales a SharePoint...")
             
-            print(f"Intentando crear un nuevo elemento en la lista '{SHAREPOINT_LIST_NAME}'...")
+            successful_uploads = 0
+            for test_info in self.individual_tests:
+                try:
+                    # Determinar qué poner en la descripción según el resultado
+                    if test_info['result'] == 'failed' and test_info['error_message']:
+                        description = f"ERROR: {test_info['error_message']}"
+                        if IN_CI:
+                            description = f"[CI/CD] {description}"
+                    else:
+                        description = ""
+                    
+                    # Preparar propiedades del elemento
+                    item_properties = {
+                        'Modulo_x0020__x002f__x0020_Ruta': test_info['name'][:100],  # Modulo / Ruta
+                        'Descripci_x00f3_n_x0020_del_x002': description[:255] if description else None,  # Descripción
+                        'Etapa': 'Construccion',  # Etapa
+                        'Tipo': 'PRUEBA AUTOMATIZADA',  # Tipo
+                        'Version': '1.0',  # Versión
+                    }
+                    
+                    # Añadir el elemento a la lista
+                    target_list.add_item(item_properties)
+                    ctx.execute_query()
+                    successful_uploads += 1
+                    
+                except Exception as e:
+                    print(f"Error al subir la prueba '{test_info['name']}' a SharePoint: {str(e)}")
             
-            target_list.add_item(item_properties)
-            ctx.execute_query()
-            
-            print(f"Resultados subidos exitosamente a la lista '{SHAREPOINT_LIST_NAME}' en SharePoint")
+            print(f"Se subieron exitosamente {successful_uploads} de {len(self.individual_tests)} pruebas a SharePoint")
             return True
+            
         except Exception as e:
             print(f"Error al subir los resultados a SharePoint: {str(e)}")
             if IN_CI:
@@ -85,13 +107,13 @@ class SharePointReporter:
 # Hooks de pytest
 @pytest.hookimpl(trylast=True)
 def pytest_configure(config):
-    """Registra el plugin al inicio de las pruebas"""
+    # Registra el plugin al inicio de las pruebas
     config._sharepoint_reporter = SharePointReporter()
     config.pluginmanager.register(config._sharepoint_reporter)
 
 @pytest.hookimpl(trylast=True)
 def pytest_unconfigure(config):
-    """Sube los resultados al finalizar todas las pruebas"""
+    # Sube los resultados al finalizar todas las pruebas
     sharepoint_reporter = getattr(config, "_sharepoint_reporter", None)
     if sharepoint_reporter:
         try:
@@ -104,25 +126,34 @@ def pytest_unconfigure(config):
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_protocol(item, nextitem):
-    """Contabiliza cada prueba ejecutada"""
+    # Contabiliza cada prueba ejecutada
     outcome = yield
     reporter = item.config._sharepoint_reporter
     reporter.test_results['total'] += 1
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
-    """Procesa el resultado de cada prueba"""
+    start_time = time.time()
     outcome = yield
+    duration = time.time() - start_time
+    
     report = outcome.get_result()
     reporter = item.config._sharepoint_reporter
     
     if report.when == 'call':
+        test_name = f"{item.parent.name}.{item.name}"
+        
         if report.passed:
             reporter.test_results['passed'] += 1
+            reporter.add_test_result(test_name, 'passed', duration)
         elif report.failed:
             reporter.test_results['failed'] += 1
+            error_message = str(report.longrepr) if hasattr(report, 'longrepr') else "Error desconocido"
+            reporter.add_test_result(test_name, 'failed', duration, error_message)
         elif report.skipped:
             reporter.test_results['skipped'] += 1
+            skip_reason = report.longrepr[2] if hasattr(report, 'longrepr') and isinstance(report.longrepr, tuple) and len(report.longrepr) > 2 else "Prueba omitida"
+            reporter.add_test_result(test_name, 'skipped', duration, skip_reason)
 
 @pytest.hookimpl(trylast=True)
 def pytest_terminal_summary(terminalreporter, exitstatus, config):
@@ -136,3 +167,4 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     print(f"  Fallaron: {reporter.test_results['failed']}")
     print(f"  Omitidas: {reporter.test_results['skipped']}")
     print(f"  Duración: {reporter.test_results['duration']:.2f} segundos")
+    print(f"  Pruebas individuales recopiladas: {len(reporter.individual_tests)}")
