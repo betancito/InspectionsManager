@@ -37,9 +37,8 @@ urlpatterns = [
     #Register path for new user registration
     path("register/", views.RegistrationView.as_view(), name='user_registration'),
     
-    #User Roles Management
-    path("user_roles/", views.UserRolesView.as_view(), name='user_roles'),
-    path("user_roles/<int:id>/", views.UserRolesView.as_view(), name='user_roles_update'),
+    #User management paths
+    path("user/<int:id>/", views.UserView.as_view(), name='delete_user'),
     
 #Path to API basic endpoint documentation
     path("docs/", views.index)

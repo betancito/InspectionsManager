@@ -5,7 +5,7 @@ import {
 import MainSection from "../components/landing/MainSection";
 import Navbar from "../components/landing/Navbar";
 import Features from "../components/landing/Features";
-import Register from "../components/landing/Register";
+import Register from "./auth/Register";
 
 const Landing: React.FC = () => {
   return (

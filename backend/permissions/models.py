@@ -12,10 +12,10 @@ class RoleGroup(models.Model):
     
 class UserRoles(models.Model):
     ROLE_CHOICES = [
-        ('Admin', _('Admin')),
-        ('Analyst', _('Analyst')),
-        ('Inspector', _('Inspector')),
-        ('Viewer', _('Viewer')),
+        ('admin', _('Admin')),
+        ('analyst', _('Analyst')),
+        ('inspector', _('Inspector')),
+        ('viewer', _('Viewer')),
     ]
     
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')

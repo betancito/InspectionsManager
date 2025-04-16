@@ -89,7 +89,7 @@ export const completeInspection = createAsyncThunk(
       return response.data; // assume this returns the updated inspection data
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.error || "Completion failed"
+        error.response?.data?.error || "La completación de la inspección falló"
       );
     }
   }

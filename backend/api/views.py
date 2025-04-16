@@ -12,7 +12,7 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated
-from permissions.permissions import IsAdminUser, IsAnalystUser, IsInspectorUser, IsViewerUser
+from permissions.permissions import IsAdminUser, IsAnalystUser, IsInspectorUser, IsAdminOrAnalystUser
 
 #Models
 from .models.inspection import Inspection
@@ -25,7 +25,6 @@ from .serializers.inspection_serializer import InspectionSerializer
 from .utils.photo_edit import edit_img
 from .serializers.activity_serializer import ActivitySerializer
 from .serializers.UserRegistrationSerializer import UserRegistrationSerializer
-from .serializers.UserRegistrationSerializer import UserRoleSerializer
 
 
 #View to render api index showing endpoints and basic usage
@@ -42,50 +41,34 @@ class RegistrationView(APIView):
     permission_classes = (AllowAny,)
     serializer_class = UserRegistrationSerializer
 
-    def post(self, *args, **kwargs):
-        serializer = self.get_serializer(data=self.request.data)
-        if serializer.is_valid():
-            user = serializer.save()
-
-            return Response({
-                "user": serializer.data,
-                "message": "User registered successfully"
-            }, status=status.HTTP_201_CREATED)
-        
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-#User Role Management Methods
-class UserRolesView(APIView):
-    permission_classes = (IsAuthenticated)
-    
-    def get(self, request):
+    def post(self, request):
         try:
-            user_roles = UserRoles.objects.all()
-            serializer = UserRoleSerializer(user_roles, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            data = request.data
+            print (data)
+            serializer = UserRegistrationSerializer(data=data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=201)
+            else:
+                return Response(serializer.errors, status=400)
         except Exception as e:
-            return Response({'Error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-    def put(self, request, id = None):
+            print(f"Error: {e}")
+            return Response({'Error': str(e)}, status=500)
+
+#UserMethods
+class UserView(APIView):
+    permission_classes = (IsAuthenticated, IsAdminUser)
+    def delete(self, request, id=None):
         try:
             if not id:
                 return Response({'Error': 'ID is required'}, status=status.HTTP_400_BAD_REQUEST)
             
             user = get_object_or_404(User, id=id)
-            user_role, created = UserRoles.objects.get_or_create(user=user)
-            
-            role = request.data.get('role_group')
-            if role not in ['admin', 'analyst', 'inspector', 'viewer']:
-                return Response({'Error': 'Invalid role'}, status=status.HTTP_400_BAD_REQUEST)
-            
-            user_role.role_group = role
-            user_role.save()
-            
-            return Response({'Success': f'User role updated to {role}'}, status=status.HTTP_200_OK)
-        
+            user.delete()
+            return Response({'Success': f'User with id {id} deleted successfully'}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'Error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+
 #Inspections Methods
 class InspectionView(APIView):
     # Define class attributes for different permission combinations
@@ -255,7 +238,7 @@ class CompleteInspectionView(APIView):
 class ActivityView(APIView):
     all_users = [IsAuthenticated()]
     admin_only = [IsAuthenticated(), IsAdminUser()]
-    admin_analyst= [IsAuthenticated(), IsAnalystUser() or IsAdminUser()]
+    admin_analyst= [IsAuthenticated(), IsAdminOrAnalystUser()]
     admin_inspector = [IsAuthenticated(), IsAdminUser() or IsInspectorUser()]
     admin_analyst_inspector = [IsAuthenticated(), IsAdminUser() or IsAnalystUser() or IsInspectorUser()]
     
