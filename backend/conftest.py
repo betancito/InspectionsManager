@@ -16,8 +16,6 @@ SHAREPOINT_PASSWORD = os.environ.get('SHAREPOINT_PASSWORD')
 SHAREPOINT_LIST_NAME = os.environ.get('SHAREPOINT_LIST_NAME', 'Control Pruebas - GEIICO- IDT')
 
 class SharePointReporter:
-    """Plugin para reportar resultados de pruebas a SharePoint"""
-    
     def __init__(self):
         self.test_results = {
             'total': 0,
@@ -30,13 +28,12 @@ class SharePointReporter:
         self.start_time = time.time()
     
     def upload_to_sharepoint(self):
-        """Sube los resultados de las pruebas a la lista de SharePoint existente"""
         if not all([SHAREPOINT_SITE_URL, SHAREPOINT_USERNAME, SHAREPOINT_PASSWORD]):
             print("Credenciales de SharePoint no configuradas. No se subirán los resultados.")
             return False
             
         try:
-            # Usar el mismo enfoque de autenticación que en tu código de ejemplo
+            # Autentificacion en SharePoint
             ctx_auth = AuthenticationContext(SHAREPOINT_SITE_URL)
             if ctx_auth.acquire_token_for_user(SHAREPOINT_USERNAME, SHAREPOINT_PASSWORD):
                 ctx = ClientContext(SHAREPOINT_SITE_URL, ctx_auth)
@@ -45,7 +42,6 @@ class SharePointReporter:
                 print("Error al autenticar:", ctx_auth.get_last_error())
                 return False
                 
-            # Crear el mensaje con el resumen de las pruebas
             summary = (
                 f"Ejecución de pruebas - {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - "
                 f"Total: {self.test_results['total']}, "
@@ -60,12 +56,11 @@ class SharePointReporter:
             
             # Preparar datos para la lista - solo usamos "No. Set de Pruebas" (Title)
             item_properties = {
-                'Title': summary[:255]  # Limitar a 255 caracteres (límite típico para Title)
+                'Title': summary[:255]
             }
             
             print(f"Intentando crear un nuevo elemento en la lista '{SHAREPOINT_LIST_NAME}'...")
             
-            # Crear un nuevo elemento en la lista y ejecutar la consulta
             target_list.add_item(item_properties)
             ctx.execute_query()
             
@@ -75,16 +70,15 @@ class SharePointReporter:
             print(f"Error al subir los resultados a SharePoint: {str(e)}")
             return False
 
-# Hooks de pytest
 @pytest.hookimpl(trylast=True)
 def pytest_configure(config):
-    """Registra el plugin al inicio de las pruebas"""
+    # Registra el plugin al inicio de las pruebas
     config._sharepoint_reporter = SharePointReporter()
     config.pluginmanager.register(config._sharepoint_reporter)
 
 @pytest.hookimpl(trylast=True)
 def pytest_unconfigure(config):
-    """Sube los resultados al finalizar todas las pruebas"""
+    # Sube los resultados al finalizar todas las pruebas
     sharepoint_reporter = getattr(config, "_sharepoint_reporter", None)
     if sharepoint_reporter:
         sharepoint_reporter.upload_to_sharepoint()
@@ -117,10 +111,8 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     """Actualiza el resumen al finalizar todas las pruebas"""
     reporter = config._sharepoint_reporter
     
-    # Calcular duración de las pruebas usando nuestro propio temporizador
     reporter.test_results['duration'] = time.time() - reporter.start_time
     
-    # Imprimir resumen
     print("\nResumen de resultados:")
     print(f"  Total: {reporter.test_results['total']}")
     print(f"  Pasaron: {reporter.test_results['passed']}")
