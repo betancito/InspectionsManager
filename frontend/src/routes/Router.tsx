@@ -4,6 +4,7 @@ import Login from '../pages/auth/Login';
 import Dashboard from '../pages/Dashboard';
 import PrivateRoute from '../components/router/PrivateRoute';
 import Details from '../pages/Details';
+import Register from '../pages/auth/Register';
 
 
 
@@ -14,6 +15,7 @@ const Router = () => {
                 {/* // Public Routes  */}
                 <Route path="/" element={<Landing />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
 
                 {/* //Private Routes */}
                 <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />

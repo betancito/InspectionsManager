@@ -4,6 +4,7 @@ import authReducer from './slicers/Auth/authSlice';
 import activiyReducer from './slicers/Details/activitiesSlice';
 import createActivityReducer from './slicers/Details/createActivitySlice';
 import uploadActivitiesReducer from './slicers/Details/uploadActivitiesSlice';
+import registerReducer from "./slicers/Auth/registerSlice";
 
 
 export const store = configureStore({
@@ -13,6 +14,7 @@ export const store = configureStore({
       activities:  activiyReducer,
       createActivity: createActivityReducer,
       uploadActivities: uploadActivitiesReducer,
+      register: registerReducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
@@ -20,10 +22,6 @@ export const store = configureStore({
           // Ignore these specific action types
           ignoredActions: [
             'checkModal/setPhoto',
-            //Auth ignored actions
-            'auth/refreshToken/pending',
-            'auth/refreshToken/fulfilled',
-            'auth/refreshToken/rejected',
             //Activity ignored actions
             'activities/fetchActivities/pending',
             'activities/fetchActivities/fulfilled',

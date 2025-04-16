@@ -1,4 +1,4 @@
-import { AppBar, Toolbar, Typography, Button } from "@mui/material";
+import { AppBar, Toolbar, Typography, Button, Container,} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
@@ -10,14 +10,24 @@ const Navbar = () => {
         <Typography variant="h6" component="div" className="text-white">
           Inspecciones
         </Typography>
-        <Button
-          variant="outlined"
-          color="inherit"
-          onClick={() => navigate("/login")}
-          sx={{ borderColor: "white", color: "white" }}
-        >
-          Login
-        </Button>
+        <Container sx={{ display: "flex", justifyContent: "flex-end" }}>
+          <Button
+            variant="outlined"
+            color="inherit"
+            onClick={() => navigate("/login")}
+            sx={{ borderColor: "white", color: "white", marginRight: 2 }}
+          >
+            Login
+          </Button>
+          <Button
+            variant="outlined"
+            color="inherit"
+            onClick={() => navigate("/register")}
+            sx={{ borderColor: "white", color: "white" }}
+          >
+            Register
+          </Button>
+        </Container>
       </Toolbar>
     </AppBar>
   );
