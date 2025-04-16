@@ -17,7 +17,7 @@ const Navbar = () => {
             onClick={() => navigate("/login")}
             sx={{ borderColor: "white", color: "white", marginRight: 2 }}
           >
-            Login
+            Ingresar
           </Button>
           <Button
             variant="outlined"
@@ -25,7 +25,7 @@ const Navbar = () => {
             onClick={() => navigate("/register")}
             sx={{ borderColor: "white", color: "white" }}
           >
-            Register
+            Registrarse
           </Button>
         </Container>
       </Toolbar>
