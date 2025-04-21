@@ -10,14 +10,24 @@ import 'leaflet/dist/leaflet.css';
 import { store } from "./features/store";
 import { Provider } from 'react-redux';
 import setupAxiosInterceptors from "./services/axiosInterceptor";
-
+import {Auth0Provider} from '@auth0/auth0-react'
+import { AUTH0_CLIENT_ID, AUTH0_DOMAIN } from "./utils/types";
 //Axios interceptor before main renders
 setupAxiosInterceptors();
 
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-      <Provider store={store}>
-        <AppRouter />
-      </Provider>
-  </React.StrictMode>
+  <Auth0Provider
+                domain={AUTH0_DOMAIN}
+                clientId={AUTH0_CLIENT_ID}
+                authorizationParams={{
+                    redirect_uri: window.location.origin
+                }}
+        >
+    <React.StrictMode>
+          <Provider store={store}>
+              <AppRouter />
+          </Provider>
+    </React.StrictMode>
+   </Auth0Provider>
 );

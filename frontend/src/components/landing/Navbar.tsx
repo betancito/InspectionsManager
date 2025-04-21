@@ -1,5 +1,8 @@
 import { AppBar, Toolbar, Typography, Button, Container,} from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useAuth0 } from "@auth0/auth0-react";
+import LoginButton from "../auth/LoginButton";
+import Logout from "../auth/Logout";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -11,6 +14,8 @@ const Navbar = () => {
           Inspecciones
         </Typography>
         <Container sx={{ display: "flex", justifyContent: "flex-end" }}>
+          {/* Normal Button for Login trough API
+          
           <Button
             variant="outlined"
             color="inherit"
@@ -18,7 +23,10 @@ const Navbar = () => {
             sx={{ borderColor: "white", color: "white", marginRight: 2 }}
           >
             Ingresar
-          </Button>
+          </Button> */}
+          {/* Button Using Auth0 */}
+          <LoginButton/>
+          <Logout/>
           <Button
             variant="outlined"
             color="inherit"

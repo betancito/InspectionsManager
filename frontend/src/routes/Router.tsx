@@ -7,21 +7,20 @@ import Details from '../pages/Details';
 import Register from '../pages/auth/Register';
 
 
-
 const Router = () => {
     return(
-        <BrowserRouter>
-            <Routes>
-                {/* // Public Routes  */}
-                <Route path="/" element={<Landing />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
+            <BrowserRouter>
+                <Routes>
+                    {/* // Public Routes  */}
+                    <Route path="/" element={<Landing />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
 
-                {/* //Private Routes */}
-                <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-                <Route path="/inspection/:id" element={<PrivateRoute><Details/></PrivateRoute>}/>
-            </Routes>
-        </BrowserRouter>
+                    {/* //Private Routes */}
+                    <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+                    <Route path="/inspection/:id" element={<PrivateRoute><Details/></PrivateRoute>}/>
+                </Routes>
+            </BrowserRouter>
     );
 }
 
