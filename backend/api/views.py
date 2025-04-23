@@ -2,6 +2,7 @@
 import io
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.shortcuts import get_object_or_404, render
+
 from PIL import Image
 
 #Utils and auth tools
@@ -10,6 +11,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import status
 from rest_framework.permissions import AllowAny
+from rest_framework import exceptions, status
 from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated
 from permissions.permissions import IsAdminUser, IsAnalystUser, IsInspectorUser, IsAdminOrAnalystUser
@@ -365,3 +367,27 @@ class ActivityView(APIView):
             print(f"Error: {e}")
             return Response({'Error': str(e)})
         
+class TestPublicView(APIView): 
+    permission_classes = [AllowAny]
+    
+    def get(self, request):
+        return Response({
+            "message" : "Public Endpoint reached."
+        })
+        
+class TestProtectedView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        return Response ({
+            "message": "Protected endpoint reached",
+            "user": request.user.email
+        })
+        
+    def handle_exception(self, exc):
+        response = super().handle_exception(exc)
+        if isinstance(exc, exceptions.NotAuthenticated):
+            response.data = {"error": "Auth credentials missing or invalid."}
+            response.status_code = status.HTTP_401_UNAUTHORIZED
+            response['Authentication'] = 'Bearer'
+        return response

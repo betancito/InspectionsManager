@@ -1,8 +1,6 @@
 import os
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from api.controllers.inspection_controller import InspectionViewSet
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenBlacklistView
+from django.urls import path
+from rest_framework_simplejwt.views import TokenRefreshView, TokenBlacklistView
 from django.views.decorators.csrf import csrf_exempt
 from django.conf.urls.static import static
 from django.conf import settings
@@ -41,5 +39,10 @@ urlpatterns = [
     path("user/<int:id>/", views.UserView.as_view(), name='delete_user'),
     
 #Path to API basic endpoint documentation
-    path("docs/", views.index)
+    path("docs/", views.index),
+    
+    ##Paths for Auth0Protected endpoints
+    path('test-public/',  views.TestPublicView.as_view(),  name='test-public'),
+    path('test-protected/', views.TestProtectedView.as_view(), name='test-protected'),
+    
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
