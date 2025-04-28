@@ -1,5 +1,6 @@
 // src/components/inspections/EditInspectionModal.tsx
 import React, { useState, useEffect } from "react";
+import {InspectionModel as Inspection} from "../../utils/types";
 import {
   Dialog,
   DialogTitle,
@@ -10,16 +11,6 @@ import {
 } from "@mui/material";
 
 // Inspection Model for updating pourposes
-export interface Inspection {
-  id: number;
-  title: string;
-  description: string;
-  latitude: number;
-  longitude: number;
-  due_date: string;
-  created_at: string;
-  updated_at: string;
-}
 
 // Props for the EditModal
 interface props {
@@ -64,6 +55,7 @@ const EditInspectionModal: React.FC<props> = ({
         latitude: parseFloat(latitude),
         longitude: parseFloat(longitude),
         due_date: dueDate,
+        updated_by: parseInt(localStorage.getItem("user_id")||"0"),
       };
       onSave(updatedInspection);
     }

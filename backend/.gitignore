@@ -20,5 +20,7 @@ venv/
 # Ignore VS Code files in case they exist
 .vscode/
 
+#ignore media folder
+**/media/inspection_photo/*
 
 

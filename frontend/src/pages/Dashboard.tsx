@@ -12,18 +12,21 @@ import {
   Paper,
   Button,
 } from "@mui/material";
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
 import axios from "axios";
-import EditInspectionModal, { Inspection } from "../components/dashboard/EditModal";
+import EditInspectionModal from "../components/dashboard/EditModal";
 import CreateInspectionModal from "../components/dashboard/CreateModal";
-import { Inspection as InspectionToSave } from "../components/dashboard/CreateModal";
+import { InspectionModel as InspectionToSave } from "../utils/types";
 import { Link } from "react-router-dom";
 import CheckModal from "../components/dashboard/CheckModal";
 import { useDispatch } from "react-redux";
-import { openCheckModal } from "../features/slicers/checkSlice";
-import { logout } from "../features/slicers/authSlice";
-import { API_URL } from "../utils/constants";
+import { openCheckModal } from "../features/slicers/dashboard/checkSlice";
+import { logout } from "../features/slicers/Auth/authSlice";
+import { API_URL } from "../utils/types";
 import { RootState } from "../features/store";
 import { useSelector } from "react-redux";
+import { InspectionModel as Inspection } from "../utils/types";
 
 
 const Dashboard: React.FC = () => {
@@ -33,7 +36,7 @@ const Dashboard: React.FC = () => {
   const [error, setError] = useState<string>("");
   
   // Auth check
-  const {isAdmin} = useSelector((state: RootState) => state.auth);
+  const {role_group} = useSelector((state: RootState) => state.auth);
 
   // States for modals:
   const [inspections, setInspections] = useState<Inspection[]>([]);
@@ -147,7 +150,7 @@ const Dashboard: React.FC = () => {
         <Typography variant="h4" gutterBottom>
           Dashboard
         </Typography>
-        { isAdmin &&
+        { role_group &&
         <Button variant="contained" color="primary" onClick={()=>setCreateModalOpen(true)}>
           Crear inspección
         </Button>
@@ -175,17 +178,17 @@ const Dashboard: React.FC = () => {
                   <TableCell>{inspection.title.includes("(") ? inspection.title.slice(2, -3) : inspection.title}</TableCell>
                   <TableCell>{inspection.due_date}</TableCell>
                   <TableCell>
-                    { isAdmin &&
+                    { role_group === 'admin' &&(
                     <Button
                       variant="outlined"
                       color="primary"
                       size="small"
-                      onClick={() => handleEditClick(inspection)}
+                      onClick={() => (handleEditClick(inspection))}
                       style={{ marginRight: "0.5rem" }}
                     >
                       Editar
                     </Button>
-                    }
+                    )}
                     <Link to={`/inspection/${inspection.id}`} state={{inspection}}>
                     <Button
                       variant="outlined"
@@ -196,7 +199,7 @@ const Dashboard: React.FC = () => {
                       Detalles
                     </Button>
                     </Link>
-                    { isAdmin &&
+                    { role_group === 'admin' &&
                     <Button
                       variant="contained"
                       color="error"
@@ -207,15 +210,33 @@ const Dashboard: React.FC = () => {
                     </Button>
                     }
                   </TableCell>
-                  <TableCell>
-                    <Button 
-                      variant="outlined" 
-                      color="warning" 
-                      onClick={()=>dispatch(openCheckModal(inspection.id))}
-                    >
-                      Completar Inspección
-                    </Button>
-                  </TableCell>
+                  {(role_group === 'admin' || role_group === 'inspector') ? (
+                    inspection.completed ? (
+                      <TableCell sx={{justifyContent: "center"}}>
+                        <CheckIcon color="success" />
+                      </TableCell>
+                    ) : (
+                      <TableCell>
+                        <Button 
+                          variant="outlined" 
+                          color="warning" 
+                          onClick={() => dispatch(openCheckModal(inspection.id))}
+                        >
+                          Completar Inspección
+                        </Button>
+                      </TableCell>
+                    )
+                  ) : (
+                    /* For other roles (analyst, viewer), just show check or X icon */
+                    <TableCell sx={{justifyContent: "center"}}>
+                      {inspection.completed ? (
+                        <CheckIcon color="success" />
+                      ) : (
+                        <CloseIcon color="error" />
+                      )}
+                    </TableCell>
+                  )}
+                  
                 </TableRow>
               ))}
             </TableBody>

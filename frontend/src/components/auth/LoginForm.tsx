@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import { TextField, Button, Alert, Card, CardContent, Typography } from '@mui/material';
+import { NavLink } from 'react-router-dom';
 
 interface props {
     error : string,
@@ -22,7 +23,7 @@ const LoginForm: React.FC<props> = ({onSubmit, error}) => {
     return (
         <Card>
             <CardContent>
-                <Typography variant="h5" gutterBottom>
+                <Typography variant="h6" gutterBottom>
                     Ingresar
                 </Typography>
                 {/* Error message advice to user */}
@@ -45,10 +46,12 @@ const LoginForm: React.FC<props> = ({onSubmit, error}) => {
                         margin="normal"
                         fullWidth
                     />
+                    <Typography variant='body2' gutterBottom>No tienes una cuenta? <NavLink to="/register">Registrate</NavLink></Typography>
                     <Button type="submit" variant="contained" color="primary">
                         Ingresar
                     </Button>
                 </form>
+                
             </CardContent>
         </Card>
     );

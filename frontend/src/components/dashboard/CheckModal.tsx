@@ -1,7 +1,7 @@
 import { RootState } from '../../features/store';
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { closeCheckModal, setDescription, setLatitude, setLongitude, setPhoto, completeInspection } from '../../features/slicers/checkSlice';
+import { closeCheckModal, setDescription, setLatitude, setLongitude, setPhoto, completeInspection } from '../../features/slicers/dashboard/checkSlice';
 import { Dialog, DialogContent, DialogTitle, TextField, Button, CircularProgress } from '@mui/material';
 import  CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import {styled} from '@mui/material/styles';

@@ -39,6 +39,74 @@ The system provides secure API endpoints for managing inspections (including cre
   - A `DELETE` request removes an inspection.  
   **Note:** All these endpoints are secured and require the access token for authentication.
 
+- **Complete an inspection**
+  **Endpoint:** `PUT /api/v1/inspections/{id}/`  
+  **Description:**  
+  - A `PUT` request completes the pending inspection.  
+  **Note:** All these endpoints are secured and require the access token for authentication.
+
+### Activities
+
+- **List All Activities**  
+  **Endpoint:** `GET /api/v1/activities/`  
+  **Description:**  
+  - Retrieves all activity records.
+  - Requires a valid JWT token in the `Authorization` header.  
+  **Permissions:** Authenticated users only.  
+  **Response Fields:**  
+  - `id` (integer)
+  - `title` (string)
+  - `description` (string)
+  - `status` (string)
+  - `inspection` (integer)
+  - `created_at` (datetime)
+  - `updated_at` (datetime)
+
+- **Retrieve Specific Activity**  
+  **Endpoint:** `GET /api/v1/activities/{activity_id}/`  
+  **Description:**  
+  - Retrieves a specific activity by its ID.
+  - Requires a valid JWT token in the `Authorization` header.  
+  **Permissions:** Authenticated users only.
+
+- **List Activities by Inspection**  
+  **Endpoint:** `GET /api/v1/inspection/{inspection_id}/activities/`  
+  **Description:**  
+  - Returns a list of all activities linked to a specific inspection.  
+  - Requires a valid JWT token in the `Authorization` header.  
+  **Permissions:** Authenticated users only.
+
+- **Create Activities (Single or Multiple)**  
+  **Endpoint:** `POST /api/v1/inspection/{inspection_id}/activities/`  
+  **Description:**  
+  - Creates one or more activity records tied to a specific inspection.
+  - For multiple creations, send a list of activity objects.
+  - Requires a valid JWT token in the `Authorization` header.  
+  **Permissions:** Admins and analysts only.  
+  **Request Fields:**  
+  - `title` (string, required)  
+  - `description` (string)  
+  - `status` (string, optional)  
+  - If multiple, send as a list of objects.
+
+- **Update Activity**  
+  **Endpoint:** `PUT /api/v1/activities/{id}/`  
+  **Description:**  
+  - Updates an existing activity.  
+  - Requires a valid JWT token in the `Authorization` header.  
+  **Permissions:** Admins, analysts, and inspectors only.  
+  **Request Fields:**  
+  - `title` (string)
+  - `description` (string)
+  - `status` (string)
+
+- **Delete Activity**  
+  **Endpoint:** `DELETE /api/v1/activities/{id}/`  
+  **Description:**  
+  - Deletes a specific activity.
+  - Requires a valid JWT token in the `Authorization` header.  
+  **Permissions:** Admins and analysts only.
+
 ## Frontend Overview
 
 - **Authentication:**  
@@ -49,6 +117,9 @@ The system provides secure API endpoints for managing inspections (including cre
 
 - **Routing:**  
   The application uses React Router for navigation. Private routes ensure that only authenticated users can access the dashboard, while the login view redirects to the dashboard after a successful authentication.
+
+- **Redux:**  
+  Redux is used for global state management. Authentication status, user information, and the list of inspections are stored in the Redux store. Actions are dispatched to update the store when a user logs in, logs out, or when inspections are fetched, created, updated, or deleted. Middleware like Redux Thunk is used to handle asynchronous API calls.
 
 For detailed information on how to run the front end, please refer to the documentation inside the **frontend** folder.
 
@@ -61,6 +132,9 @@ The backend is implemented with Django and Django REST Framework. Key aspects in
 
 - **Inspection Management:**  
   The API provides endpoints for creating, listing, retrieving, updating, and deleting inspection records. The endpoints are designed following RESTful principles and include proper validation and error handling.
+
+- **Image and Map Handling:**  
+  The backend uses the `Pillow` library for image processing and manipulation when handling image uploads or editing tasks. Additionally, `StaticMap` is used to generate static map images with markers based on the coordinates (latitude and longitude) of inspection locations.
 
 - **CORS Configuration:**  
   CORS is handled using `django-cors-headers` to allow cross-origin requests from the frontend domain. (Running locally, for deployment pourposes please refer to the docs inside the backend folder)
