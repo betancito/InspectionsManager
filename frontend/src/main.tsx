@@ -11,9 +11,9 @@ import { store } from "./features/store";
 import { Provider } from 'react-redux';
 import setupAxiosInterceptors from "./services/axiosInterceptor";
 import {Auth0Provider} from '@auth0/auth0-react'
-import { AUTH0_CLIENT_ID, AUTH0_DOMAIN } from "./utils/types";
-//Axios interceptor before main renders
-setupAxiosInterceptors();
+import { AUTH0_CLIENT_ID, AUTH0_DOMAIN, AUTH0_AUDIENCE} from "./utils/types";
+
+
 
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -21,8 +21,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                 domain={AUTH0_DOMAIN}
                 clientId={AUTH0_CLIENT_ID}
                 authorizationParams={{
-                    redirect_uri: window.location.origin
+                    redirect_uri: window.location.origin,
+                    audience:AUTH0_AUDIENCE,
                 }}
+                useRefreshTokens = {true}
+                cacheLocation="localstorage"
         >
     <React.StrictMode>
           <Provider store={store}>

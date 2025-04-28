@@ -8,7 +8,7 @@ import Features from "../components/landing/Features";
 import { useAuth0 } from "@auth0/auth0-react";
 
 const Landing: React.FC = () => {
-  const {user, isAuthenticated} = useAuth0();
+  const {user, isAuthenticated, token} = useAuth0();
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       {/* Navbar */}

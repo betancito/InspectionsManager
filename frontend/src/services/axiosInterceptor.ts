@@ -1,6 +1,8 @@
 import axios from "axios";
 import {store} from "../features/store";
 import { refreshToken } from "../features/slicers/Auth/authSlice";
+import { useAuth0 } from "@auth0/auth0-react";
+import { API_URL } from "../utils/types";
 
 const setupAxiosInterceptors = () => {
     axios.interceptors.request.use(
@@ -38,5 +40,25 @@ const setupAxiosInterceptors = () => {
         }
     )
 }
+
+
+export const useAxiosWithAuth = () => {
+    const { getAccessTokenSilently } = useAuth0();
+    const instance = axios.create({
+      baseURL: API_URL
+    });
+  
+    instance.interceptors.request.use(async (config) => {
+      const token = await getAccessTokenSilently();
+      config.headers = {
+        ...config.headers,
+        Authorization: `Bearer ${token}`,
+      };
+      return config;
+    });
+  
+    return instance;
+  };
+  
 
 export default setupAxiosInterceptors;
