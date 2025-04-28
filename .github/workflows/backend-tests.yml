@@ -1,0 +1,63 @@
+name: Backend Tests
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest-cov pytest-django python-dotenv Office365-REST-Python-Client
+    
+    - name: Check SharePoint environment variables
+      run: |
+        echo "SHAREPOINT_SITE_URL configured: ${{ secrets.SHAREPOINT_SITE_URL != '' }}"
+        echo "SHAREPOINT_USERNAME configured: ${{ secrets.SHAREPOINT_USERNAME != '' }}"
+        echo "SHAREPOINT_PASSWORD configured: ${{ secrets.SHAREPOINT_PASSWORD != '' }}"
+        echo "SHAREPOINT_LIST_NAME configured: ${{ secrets.SHAREPOINT_LIST_NAME != '' }}"
+        
+    - name: Run tests with coverage and generate report
+      env:
+        SHAREPOINT_SITE_URL: ${{ secrets.SHAREPOINT_SITE_URL }}
+        SHAREPOINT_USERNAME: ${{ secrets.SHAREPOINT_USERNAME }}
+        SHAREPOINT_PASSWORD: ${{ secrets.SHAREPOINT_PASSWORD }}
+        SHAREPOINT_LIST_NAME: ${{ secrets.SHAREPOINT_LIST_NAME }}
+        CI: "true"
+      run: |
+        python -m pytest --cov=api --cov-report=xml --junitxml=test-results.xml
+        
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: ./backend/coverage.xml
+        flags: backend
+        fail_ci_if_error: false
+        
+    - name: Publish Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always()
+      with:
+        files: backend/test-results.xml
